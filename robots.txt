@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://srees-waffle-galaxy.vercel.app/sitemap.xml
