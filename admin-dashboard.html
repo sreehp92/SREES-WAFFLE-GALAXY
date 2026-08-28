@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sree's Waffle Galaxy - Admin Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f6f4e8;color:#3d2b21;font-family:Arial,sans-serif}
+header{background:#3d2b21;color:white;padding:18px 25px;display:flex;justify-content:space-between;align-items:center}
+header h1{margin:0;font-size:20px}
+button{border:0;border-radius:8px;padding:10px 15px;cursor:pointer;font-weight:bold}
+.logout{background:#dc9b9b;color:#3d2b21}
+main{max-width:1100px;margin:30px auto;padding:0 18px}
+.card{background:#fffdf8;border-radius:18px;padding:25px;margin-bottom:20px;box-shadow:0 8px 30px rgba(61,43,33,.1)}
+h2{margin-top:0}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:12px;border-bottom:1px solid #ddd;font-size:14px}
+.message{padding:12px;background:#e5eee4;border-radius:10px;margin-bottom:20px}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Sree's Waffle Galaxy — Admin</h1>
+<button class="logout" onclick="logout()">Logout</button>
+</header>
+
+<main>
+
+<div id="message" class="message">Loading...</div>
+
+<div class="card">
+<h2>Site Content</h2>
+<div id="siteContent">Loading...</div>
+</div>
+
+<div class="card">
+<h2>Menu Items</h2>
+<div id="menuItems">Loading...</div>
+</div>
+
+<div class="card">
+<h2>Gallery</h2>
+<div id="gallery">Loading...</div>
+</div>
+
+<div class="card">
+<h2>Reviews</h2>
+<div id="reviews">Loading...</div>
+</div>
+
+<div class="card">
+<h2>Enquiries</h2>
+<div id="enquiries">Loading...</div>
+</div>
+
+</main>
+
+<script>
+const SUPABASE_URL="https://vxcbpbcqiqwgiapgvoxy.supabase.co";
+const SUPABASE_KEY="sb_publishable_sSh0vTRY28VnBKP8Zunosg_07RmB9BJ";
+
+const {createClient}=supabase;
+const db=createClient(SUPABASE_URL,SUPABASE_KEY);
+
+async function checkLogin(){
+  const {data:{user}}=await db.auth.getUser();
+
+  if(!user){
+    window.location.href="admin.html";
+    return;
+  }
+
+  document.getElementById("message").textContent=
+    "Logged in as "+user.email;
+
+  loadData();
+}
+
+async function loadData(){
+
+  const site=await db.from("site_content").select("*");
+  document.getElementById("siteContent").textContent=
+    JSON.stringify(site.data||[],null,2);
+
+  const menu=await db.from("menu_items").select("*");
+  document.getElementById("menuItems").textContent=
+    JSON.stringify(menu.data||[],null,2);
+
+  const gallery=await db.from("gallery").select("*");
+  document.getElementById("gallery").textContent=
+    JSON.stringify(gallery.data||[],null,2);
+
+  const reviews=await db.from("reviews").select("*");
+  document.getElementById("reviews").textContent=
+    JSON.stringify(reviews.data||[],null,2);
+
+  const enquiries=await db.from("enquiries").select("*");
+  document.getElementById("enquiries").textContent=
+    JSON.stringify(enquiries.data||[],null,2);
+}
+
+async function logout(){
+  await db.auth.signOut();
+  window.location.href="admin.html";
+}
+
+checkLogin();
+</script>
+
+</body>
+</html>
