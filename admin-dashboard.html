@@ -92,7 +92,7 @@ hr{border:0;border-top:1px solid #ddd;margin:20px 0}
 
 <label for="galleryImage">Image URL</label> <input id="galleryImage" type="text" placeholder="https://example.com/image.jpg">
 
-<label for="galleryCaption">Caption</label> <input id="galleryCaption" type="text" placeholder="Example: Chocolate Waffle">
+<label for="galleryTitle">Title</label> <input id="galleryTitle" type="text" placeholder="Example: Chocolate Waffle">
 
 <button onclick="saveGallery()">Save Gallery Image</button>
 
@@ -304,8 +304,8 @@ async function saveGallery(){
   const imageUrl=
     document.getElementById("galleryImage").value.trim();
 
-  const caption=
-    document.getElementById("galleryCaption").value.trim();
+  const title=
+    document.getElementById("galleryTitle").value.trim();
 
   const message=
     document.getElementById("galleryMessage");
@@ -326,8 +326,10 @@ async function saveGallery(){
   const {error}=await db
     .from("gallery")
     .insert({
+      title:title,
       image_url:imageUrl,
-      caption:caption
+      display_order:0,
+      is_active:true
     });
 
 
@@ -345,7 +347,7 @@ async function saveGallery(){
 
 
   document.getElementById("galleryImage").value="";
-  document.getElementById("galleryCaption").value="";
+  document.getElementById("galleryTitle").value="";
 
 
   loadData();
