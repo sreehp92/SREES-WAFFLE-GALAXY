@@ -21,9 +21,11 @@ h2{margin-top:0}
 label{display:block;margin:12px 0 6px;font-weight:bold;font-size:14px}
 input,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font:inherit}
 textarea{min-height:120px;resize:vertical}
+button{margin-top:8px}
 .message{padding:12px;background:#e5eee4;border-radius:10px;margin-bottom:20px}
-#contentMessage,#menuMessage{font-weight:bold}
+#contentMessage,#menuMessage,#galleryMessage{font-weight:bold}
 pre{white-space:pre-wrap;word-break:break-word;background:#f6f4e8;padding:15px;border-radius:10px}
+hr{border:0;border-top:1px solid #ddd;margin:20px 0}
 </style>
 
 </head>
@@ -38,6 +40,8 @@ pre{white-space:pre-wrap;word-break:break-word;background:#f6f4e8;padding:15px;b
 <main>
 
 <div id="message" class="message">Loading...</div>
+
+<!-- SITE CONTENT -->
 
 <div class="card">
 <h2>Site Content</h2>
@@ -57,6 +61,8 @@ pre{white-space:pre-wrap;word-break:break-word;background:#f6f4e8;padding:15px;b
 <pre id="siteContent">Loading...</pre>
 
 </div>
+
+<!-- MENU ITEMS -->
 
 <div class="card">
 <h2>Menu Items</h2>
@@ -79,15 +85,33 @@ pre{white-space:pre-wrap;word-break:break-word;background:#f6f4e8;padding:15px;b
 
 </div>
 
+<!-- GALLERY -->
+
 <div class="card">
 <h2>Gallery</h2>
+
+<label for="galleryImage">Image URL</label> <input id="galleryImage" type="text" placeholder="https://example.com/image.jpg">
+
+<label for="galleryCaption">Caption</label> <input id="galleryCaption" type="text" placeholder="Example: Chocolate Waffle">
+
+<button onclick="saveGallery()">Save Gallery Image</button>
+
+<p id="galleryMessage"></p>
+
+<hr>
+
 <pre id="gallery">Loading...</pre>
+
 </div>
+
+<!-- REVIEWS -->
 
 <div class="card">
 <h2>Reviews</h2>
 <pre id="reviews">Loading...</pre>
 </div>
+
+<!-- ENQUIRIES -->
 
 <div class="card">
 <h2>Enquiries</h2>
@@ -97,13 +121,16 @@ pre{white-space:pre-wrap;word-break:break-word;background:#f6f4e8;padding:15px;b
 </main>
 
 <script>
+
 const SUPABASE_URL="https://vxcbpbcqiqwgiapgvoxy.supabase.co";
 const SUPABASE_KEY="sb_publishable_sSh0vTRY28VnBKP8Zunosg_07RmB9BJ";
 
 const {createClient}=supabase;
 const db=createClient(SUPABASE_URL,SUPABASE_KEY);
 
+
 async function checkLogin(){
+
   const {data:{user}}=await db.auth.getUser();
 
   if(!user){
@@ -117,41 +144,73 @@ async function checkLogin(){
   loadData();
 }
 
+
 async function loadData(){
 
-  const site=await db.from("site_content").select("*");
+  const site=await db
+    .from("site_content")
+    .select("*");
+
   document.getElementById("siteContent").textContent=
     JSON.stringify(site.data||[],null,2);
 
-  const menu=await db.from("menu_items").select("*");
+
+  const menu=await db
+    .from("menu_items")
+    .select("*");
+
   document.getElementById("menuItems").textContent=
     JSON.stringify(menu.data||[],null,2);
 
-  const gallery=await db.from("gallery").select("*");
+
+  const gallery=await db
+    .from("gallery")
+    .select("*");
+
   document.getElementById("gallery").textContent=
     JSON.stringify(gallery.data||[],null,2);
 
-  const reviews=await db.from("reviews").select("*");
+
+  const reviews=await db
+    .from("reviews")
+    .select("*");
+
   document.getElementById("reviews").textContent=
     JSON.stringify(reviews.data||[],null,2);
 
-  const enquiries=await db.from("enquiries").select("*");
+
+  const enquiries=await db
+    .from("enquiries")
+    .select("*");
+
   document.getElementById("enquiries").textContent=
     JSON.stringify(enquiries.data||[],null,2);
 }
 
+
 async function saveSiteContent(){
 
-  const section=document.getElementById("contentTitle").value.trim();
-  const text=document.getElementById("contentText").value.trim();
-  const message=document.getElementById("contentMessage");
+  const section=
+    document.getElementById("contentTitle").value.trim();
+
+  const text=
+    document.getElementById("contentText").value.trim();
+
+  const message=
+    document.getElementById("contentMessage");
+
 
   if(!section || !text){
-    message.textContent="Please enter both section and content.";
+
+    message.textContent=
+      "Please enter both section and content.";
+
     return;
   }
 
+
   message.textContent="Saving...";
+
 
   const {error}=await db
     .from("site_content")
@@ -160,32 +219,54 @@ async function saveSiteContent(){
       content:{text:text}
     });
 
+
   if(error){
-    message.textContent="Error: "+error.message;
+
+    message.textContent=
+      "Error: "+error.message;
+
     return;
   }
 
-  message.textContent="Site content saved successfully!";
+
+  message.textContent=
+    "Site content saved successfully!";
+
 
   document.getElementById("contentTitle").value="";
   document.getElementById("contentText").value="";
 
+
   loadData();
 }
 
+
 async function saveMenuItem(){
 
-  const name=document.getElementById("menuName").value.trim();
-  const price=document.getElementById("menuPrice").value;
-  const description=document.getElementById("menuDescription").value.trim();
-  const message=document.getElementById("menuMessage");
+  const name=
+    document.getElementById("menuName").value.trim();
+
+  const price=
+    document.getElementById("menuPrice").value;
+
+  const description=
+    document.getElementById("menuDescription").value.trim();
+
+  const message=
+    document.getElementById("menuMessage");
+
 
   if(!name || !price){
-    message.textContent="Please enter name and price.";
+
+    message.textContent=
+      "Please enter name and price.";
+
     return;
   }
 
+
   message.textContent="Saving...";
+
 
   const {error}=await db
     .from("menu_items")
@@ -195,26 +276,92 @@ async function saveMenuItem(){
       description:description
     });
 
+
   if(error){
-    message.textContent="Error: "+error.message;
+
+    message.textContent=
+      "Error: "+error.message;
+
     return;
   }
 
-  message.textContent="Menu item saved successfully!";
+
+  message.textContent=
+    "Menu item saved successfully!";
+
 
   document.getElementById("menuName").value="";
   document.getElementById("menuPrice").value="";
   document.getElementById("menuDescription").value="";
 
+
   loadData();
 }
 
+
+async function saveGallery(){
+
+  const imageUrl=
+    document.getElementById("galleryImage").value.trim();
+
+  const caption=
+    document.getElementById("galleryCaption").value.trim();
+
+  const message=
+    document.getElementById("galleryMessage");
+
+
+  if(!imageUrl){
+
+    message.textContent=
+      "Please enter an image URL.";
+
+    return;
+  }
+
+
+  message.textContent="Saving...";
+
+
+  const {error}=await db
+    .from("gallery")
+    .insert({
+      image_url:imageUrl,
+      caption:caption
+    });
+
+
+  if(error){
+
+    message.textContent=
+      "Error: "+error.message;
+
+    return;
+  }
+
+
+  message.textContent=
+    "Gallery image saved successfully!";
+
+
+  document.getElementById("galleryImage").value="";
+  document.getElementById("galleryCaption").value="";
+
+
+  loadData();
+}
+
+
 async function logout(){
+
   await db.auth.signOut();
+
   window.location.href="admin.html";
 }
 
+
 checkLogin();
+
 </script>
 
 </body>
