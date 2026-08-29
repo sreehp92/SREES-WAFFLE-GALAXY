@@ -1,114 +1,1865 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sree's Waffle Galaxy - Admin Login</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sree's Waffle Galaxy - Admin Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 *{box-sizing:border-box}
+
 body{
   margin:0;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
   background:#f6f4e8;
   color:#3d2b21;
-  font-family:Arial,sans-serif;
+  font-family:Arial,sans-serif
 }
-.login{
-  width:min(420px,90%);
-  background:#fffdf8;
-  padding:35px;
-  border-radius:25px;
-  box-shadow:0 18px 55px rgba(61,43,33,.15);
-}
-h1{margin-top:0;text-align:center}
-p{text-align:center;color:#76665d}
-label{display:block;margin:15px 0 6px;font-weight:bold;font-size:14px}
-input{
-  width:100%;
-  padding:13px;
-  border:1px solid #ddd;
-  border-radius:10px;
-  font-size:15px;
-}
-button{
-  width:100%;
-  margin-top:20px;
-  padding:14px;
-  border:0;
-  border-radius:999px;
+
+header{
   background:#3d2b21;
   color:white;
-  font-weight:bold;
-  cursor:pointer;
+  padding:18px 25px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px
 }
-button:hover{opacity:.9}
-#message{
-  margin-top:15px;
-  color:#9d5b5b;
-  text-align:center;
-  font-size:14px;
+
+header h1{
+  margin:0;
+  font-size:20px
+}
+
+button{
+  border:0;
+  border-radius:8px;
+  padding:10px 15px;
+  cursor:pointer;
+  font-weight:bold;
+  background:#3d2b21;
+  color:white;
+  margin-top:8px
+}
+
+button:hover{
+  opacity:.9
+}
+
+.logout{
+  background:#dc9b9b;
+  color:#3d2b21
+}
+
+.edit-btn{
+  background:#4f7cac;
+  margin-right:5px
+}
+
+.delete-btn{
+  background:#b3261e
+}
+
+main{
+  max-width:1100px;
+  margin:30px auto;
+  padding:0 18px
+}
+
+.card{
+  background:#fffdf8;
+  border-radius:18px;
+  padding:25px;
+  margin-bottom:20px;
+  box-shadow:0 8px 30px rgba(61,43,33,.1)
+}
+
+h2{
+  margin-top:0
+}
+
+label{
+  display:block;
+  margin:12px 0 6px;
+  font-weight:bold;
+  font-size:14px
+}
+
+input,textarea,select{
+  width:100%;
+  padding:12px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  font:inherit
+}
+
+textarea{
+  min-height:120px;
+  resize:vertical
+}
+
+.message{
+  padding:12px;
+  background:#e5eee4;
+  border-radius:10px;
+  margin-bottom:20px;
+  font-weight:bold
+}
+
+.success{
+  color:#287a3d;
+  font-weight:bold
+}
+
+.error{
+  color:#b3261e;
+  font-weight:bold
+}
+
+pre{
+  white-space:pre-wrap;
+  word-break:break-word;
+  background:#f6f4e8;
+  padding:15px;
+  border-radius:10px
+}
+
+hr{
+  border:0;
+  border-top:1px solid #ddd;
+  margin:20px 0
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:900px
+}
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid #ddd;
+  text-align:left;
+  vertical-align:top;
+  font-size:14px
+}
+
+th{
+  background:#f6f4e8;
+  font-weight:bold
+}
+
+.action-buttons{
+  white-space:nowrap
+}
+
+@media(max-width:600px){
+
+  header{
+    padding:15px;
+  }
+
+  header h1{
+    font-size:16px;
+  }
+
+  main{
+    margin:20px auto;
+    padding:0 10px;
+  }
+
+  .card{
+    padding:16px;
+    border-radius:14px;
+  }
+
+  h2{
+    font-size:20px;
+  }
+
+  input,
+  textarea,
+  select{
+    font-size:16px;
+  }
+
+  table{
+    min-width:900px;
+  }
+
 }
 </style>
+
 </head>
 
 <body>
 
-<div class="login">
-  <h1>Sree's Waffle Galaxy</h1>
-  <p>Admin Login</p>
+<header>
+  <h1>Sree's Waffle Galaxy — Admin</h1>
+  <button class="logout" onclick="logout()">Logout</button>
+</header>
 
-  <form id="loginForm">
-    <label for="email">Email</label>
-    <input id="email" type="email" required>
+<main>
 
-    <label for="password">Password</label>
-    <input id="password" type="password" required>
+<div id="message" class="message">Loading...</div>
 
-    <button type="submit">Login</button>
+<!-- SITE CONTENT -->
 
-    <div id="message"></div>
-  </form>
+<div class="card">
+
+<h2>Site Content</h2>
+
+<label for="contentTitle">Section</label>
+
+<input
+id="contentTitle"
+type="text"
+placeholder="Example: About">
+
+<label for="contentText">Content</label>
+
+<textarea
+  id="contentText"
+  placeholder="Enter website content"></textarea>
+
+<button onclick="saveSiteContent()">
+  Save Site Content
+</button>
+
+<button
+id="cancelContentEdit"
+onclick="cancelContentEdit()"
+style="display:none;background:#777"
+
+>
+
+Cancel Edit </button>
+
+<p id="contentMessage"></p>
+
+<hr>
+
+<div id="siteContentList">
+  Loading...
 </div>
 
+</div>
+
+<!-- MENU ITEMS -->
+
+<div class="card">
+
+<h2>Menu Items</h2>
+
+<label for="menuName">Name</label>
+
+<input
+id="menuName"
+type="text"
+placeholder="Example: Chocolate Waffle">
+
+<label for="menuPrice">Price</label>
+
+<input
+id="menuPrice"
+type="number"
+placeholder="Example: 149">
+
+<label for="menuDescription">Description</label>
+
+<textarea
+  id="menuDescription"
+  placeholder="Enter menu item description"></textarea>
+
+<button onclick="saveMenuItem()">
+  Save Menu Item
+</button>
+
+<button
+id="cancelMenuEdit"
+onclick="cancelMenuEdit()"
+style="display:none;background:#777"
+
+>
+
+Cancel Edit </button>
+
+<p id="menuMessage"></p>
+
+<hr>
+
+<div id="menuItemsList">
+  Loading...
+</div>
+
+</div>
+
+<!-- GALLERY -->
+
+<div class="card">
+
+<h2>Gallery</h2>
+
+<label for="galleryImage">
+  Image URL
+</label>
+
+<input
+id="galleryImage"
+type="text"
+placeholder="https://example.com/image.jpg">
+
+<label for="galleryTitle">
+  Title
+</label>
+
+<input
+id="galleryTitle"
+type="text"
+placeholder="Example: Chocolate Waffle">
+
+<button onclick="saveGallery()">
+  Save Gallery Image
+</button>
+
+<button
+id="cancelGalleryEdit"
+onclick="cancelGalleryEdit()"
+style="display:none;background:#777"
+
+>
+
+Cancel Edit </button>
+
+<p id="galleryMessage"></p>
+
+<hr>
+
+<div id="galleryList">
+  Loading...
+</div>
+
+</div>
+
+<!-- REVIEWS -->
+
+<div class="card">
+
+<h2>Reviews</h2>
+
+<label for="customerName">
+  Customer Name
+</label>
+
+<input
+id="customerName"
+type="text"
+placeholder="Example: Rahul">
+
+<label for="reviewText">
+  Review
+</label>
+
+<textarea
+  id="reviewText"
+  placeholder="Enter customer review"></textarea>
+
+<label for="reviewRating">
+  Rating
+</label>
+
+<select id="reviewRating">
+
+  <option value="">
+    Select rating
+  </option>
+
+  <option value="5">
+    5 Stars
+  </option>
+
+  <option value="4">
+    4 Stars
+  </option>
+
+  <option value="3">
+    3 Stars
+  </option>
+
+  <option value="2">
+    2 Stars
+  </option>
+
+  <option value="1">
+    1 Star
+  </option>
+
+</select>
+
+<button onclick="saveReview()">
+  Save Review
+</button>
+
+<button
+id="cancelReviewEdit"
+onclick="cancelReviewEdit()"
+style="display:none;background:#777"
+
+>
+
+Cancel Edit </button>
+
+<p id="reviewMessage"></p>
+
+<hr>
+
+<div id="reviewsList">
+  Loading...
+</div>
+
+</div>
+
+<!-- ENQUIRIES -->
+
+<div class="card">
+
+<h2>Enquiries</h2>
+
+<div style="overflow-x:auto;">
+
+<table id="enquiriesTable">
+
+<thead>
+
+<tr>
+  <th>Name</th>
+  <th>Phone</th>
+  <th>Email</th>
+  <th>Location</th>
+  <th>Message</th>
+  <th>Status</th>
+  <th>Date</th>
+  <th>Actions</th>
+</tr>
+
+</thead>
+
+<tbody id="enquiries">
+
+<tr>
+  <td colspan="8">
+    Loading...
+  </td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</main>
+
 <script>
-const SUPABASE_URL = "https://vxcbpbcqiqwgiapgvoxy.supabase.co";
-const SUPABASE_KEY = "sb_publishable_sSh0vTRY28VnBKP8Zunosg_07RmB9BJ";
 
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-document.getElementById("loginForm").addEventListener("submit", async function(e){
-  e.preventDefault();
+/* SUPABASE */
 
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  const message = document.getElementById("message");
+const SUPABASE_URL =
+"https://vxcbpbcqiqwgiapgvoxy.supabase.co";
 
-  message.textContent = "Logging in...";
+const SUPABASE_KEY =
+"sb_publishable_sSh0vTRY28VnBKP8Zunosg_07RmB9BJ";
 
-  const { data, error } = await db.auth.signInWithPassword({
-    email: email,
-    password: password
-  });
+const {createClient} = supabase;
 
-  if(error){
-    message.textContent = error.message;
+const db = createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+
+/* EDIT IDS */
+
+let editingSiteId = null;
+let editingMenuId = null;
+let editingGalleryId = null;
+let editingReviewId = null;
+
+
+/* LOGIN CHECK */
+
+async function checkLogin(){
+
+  const {
+    data:{user}
+  } = await db.auth.getUser();
+
+  if(!user){
+
+    window.location.href="admin.html";
+
     return;
   }
 
-  message.style.color = "#2e7d32";
-  message.textContent = "Login successful!";
+  document.getElementById("message").textContent =
+    "Logged in as " + user.email;
 
-  setTimeout(() => {
-    window.location.href = "admin-dashboard.html";
-  }, 800);
-});
+  loadData();
+}
+
+
+/* LOAD ALL DATA */
+
+async function loadData(){
+
+  await loadSiteContent();
+  await loadMenuItems();
+  await loadGallery();
+  await loadReviews();
+  await loadEnquiries();
+
+}
+
+
+/* LOAD SITE CONTENT */
+
+async function loadSiteContent(){
+
+  const {data,error} =
+    await db
+      .from("site_content")
+      .select("*")
+      .order("id",{ascending:true});
+
+  const box =
+    document.getElementById("siteContentList");
+
+  if(error){
+
+    box.innerHTML =
+      `<p class="error">${escapeHTML(error.message)}</p>`;
+
+    return;
+  }
+
+  if(!data || data.length === 0){
+
+    box.innerHTML =
+      "<p>No site content yet.</p>";
+
+    return;
+  }
+
+  box.innerHTML = data.map(item => `
+
+    <div style="
+      background:#f6f4e8;
+      padding:15px;
+      border-radius:10px;
+      margin-bottom:10px;
+    ">
+
+      <strong>
+        ${escapeHTML(item.section || "")}
+      </strong>
+
+      <p>
+        ${escapeHTML(
+          item.content?.text || ""
+        )}
+      </p>
+
+      <button
+        class="edit-btn"
+        onclick="editSiteContent(${item.id})"
+      >
+        Edit
+      </button>
+
+      <button
+        class="delete-btn"
+        onclick="deleteSiteContent(${item.id})"
+      >
+        Delete
+      </button>
+
+    </div>
+
+  `).join("");
+
+}
+
+
+/* EDIT SITE CONTENT */
+
+async function editSiteContent(id){
+
+  const {data,error} =
+    await db
+      .from("site_content")
+      .select("*")
+      .eq("id",id)
+      .single();
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+  }
+
+  editingSiteId = id;
+
+  document.getElementById("contentTitle").value =
+    data.section || "";
+
+  document.getElementById("contentText").value =
+    data.content?.text || "";
+
+  document.getElementById(
+    "cancelContentEdit"
+  ).style.display="inline-block";
+
+  document.getElementById(
+    "contentMessage"
+  ).textContent =
+    "Editing site content...";
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+
+}
+
+
+/* DELETE SITE CONTENT */
+
+async function deleteSiteContent(id){
+
+  if(!confirm(
+    "Delete this site content?"
+  )) return;
+
+  const {error} =
+    await db
+      .from("site_content")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+  }
+
+  loadData();
+
+}
+
+
+/* CANCEL SITE EDIT */
+
+function cancelContentEdit(){
+
+  editingSiteId = null;
+
+  document.getElementById(
+    "contentTitle"
+  ).value="";
+
+  document.getElementById(
+    "contentText"
+  ).value="";
+
+  document.getElementById(
+    "cancelContentEdit"
+  ).style.display="none";
+
+  document.getElementById(
+    "contentMessage"
+  ).textContent="";
+
+}
+
+
+/* SAVE SITE CONTENT */
+
+async function saveSiteContent(){
+
+  const section =
+    document
+      .getElementById("contentTitle")
+      .value
+      .trim();
+
+  const text =
+    document
+      .getElementById("contentText")
+      .value
+      .trim();
+
+  const message =
+    document.getElementById(
+      "contentMessage"
+    );
+
+
+  if(!section || !text){
+
+    message.className="error";
+
+    message.textContent =
+      "Please enter both section and content.";
+
+    return;
+  }
+
+
+  message.className="";
+  message.textContent="Saving...";
+
+
+  let result;
+
+
+  if(editingSiteId){
+
+    result =
+      await db
+        .from("site_content")
+        .update({
+
+          section:section,
+
+          content:{
+            text:text
+          }
+
+        })
+        .eq("id",editingSiteId);
+
+  }else{
+
+    result =
+      await db
+        .from("site_content")
+        .insert({
+
+          section:section,
+
+          content:{
+            text:text
+          }
+
+        });
+
+  }
+
+
+  if(result.error){
+
+    message.className="error";
+
+    message.textContent =
+      "Error: " + result.error.message;
+
+    return;
+  }
+
+
+  message.className="success";
+
+  message.textContent =
+    editingSiteId
+      ? "Site content updated successfully!"
+      : "Site content saved successfully!";
+
+
+  cancelContentEdit();
+
+  loadData();
+
+}
+
+
+/* LOAD MENU ITEMS */
+
+async function loadMenuItems(){
+
+  const {data,error} =
+    await db
+      .from("menu_items")
+      .select("*")
+      .order("id",{ascending:true});
+
+  const box =
+    document.getElementById(
+      "menuItemsList"
+    );
+
+
+  if(error){
+
+    box.innerHTML =
+      `<p class="error">${escapeHTML(error.message)}</p>`;
+
+    return;
+  }
+
+
+  if(!data || data.length===0){
+
+    box.innerHTML =
+      "<p>No menu items yet.</p>";
+
+    return;
+  }
+
+
+  box.innerHTML =
+    data.map(item => `
+
+      <div style="
+        background:#f6f4e8;
+        padding:15px;
+        border-radius:10px;
+        margin-bottom:10px;
+      ">
+
+        <strong>
+          ${escapeHTML(item.name || "")}
+        </strong>
+
+        <p>
+          Price: ₹${escapeHTML(item.price ?? "")}
+        </p>
+
+        <p>
+          ${escapeHTML(item.description || "")}
+        </p>
+
+        <button
+          class="edit-btn"
+          onclick="editMenuItem(${item.id})"
+        >
+          Edit
+        </button>
+
+        <button
+          class="delete-btn"
+          onclick="deleteMenuItem(${item.id})"
+        >
+          Delete
+        </button>
+
+      </div>
+
+    `).join("");
+
+}
+
+
+/* EDIT MENU ITEM */
+
+async function editMenuItem(id){
+
+  const {data,error} =
+    await db
+      .from("menu_items")
+      .select("*")
+      .eq("id",id)
+      .single();
+
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+  }
+
+
+  editingMenuId=id;
+
+  document.getElementById(
+    "menuName"
+  ).value =
+    data.name || "";
+
+
+  document.getElementById(
+    "menuPrice"
+  ).value =
+    data.price ?? "";
+
+
+  document.getElementById(
+    "menuDescription"
+  ).value =
+    data.description || "";
+
+
+  document.getElementById(
+    "cancelMenuEdit"
+  ).style.display="inline-block";
+
+
+  document.getElementById(
+    "menuMessage"
+  ).textContent =
+    "Editing menu item...";
+
+}
+
+
+/* DELETE MENU ITEM */
+
+async function deleteMenuItem(id){
+
+  if(!confirm(
+    "Delete this menu item?"
+  )) return;
+
+
+  const {error} =
+    await db
+      .from("menu_items")
+      .delete()
+      .eq("id",id);
+
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+  }
+
+
+  loadData();
+
+}
+
+
+/* CANCEL MENU EDIT */
+
+function cancelMenuEdit(){
+
+  editingMenuId=null;
+
+  document.getElementById(
+    "menuName"
+  ).value="";
+
+  document.getElementById(
+    "menuPrice"
+  ).value="";
+
+  document.getElementById(
+    "menuDescription"
+  ).value="";
+
+  document.getElementById(
+    "cancelMenuEdit"
+  ).style.display="none";
+
+  document.getElementById(
+    "menuMessage"
+  ).textContent="";
+
+}
+
+
+/* SAVE MENU ITEM */
+
+async function saveMenuItem(){
+
+  const name =
+    document
+      .getElementById("menuName")
+      .value
+      .trim();
+
+
+  const price =
+    document.getElementById(
+      "menuPrice"
+    ).value;
+
+
+  const description =
+    document
+      .getElementById("menuDescription")
+      .value
+      .trim();
+
+
+  const message =
+    document.getElementById(
+      "menuMessage"
+    );
+
+
+  if(!name || !price){
+
+    message.className="error";
+
+    message.textContent =
+      "Please enter name and price.";
+
+    return;
+  }
+
+
+  message.className="";
+  message.textContent="Saving...";
+
+
+  let result;
+
+
+  if(editingMenuId){
+
+    result =
+      await db
+        .from("menu_items")
+        .update({
+
+          name:name,
+
+          price:Number(price),
+
+          description:description
+
+        })
+        .eq("id",editingMenuId);
+
+  }else{
+
+    result =
+      await db
+        .from("menu_items")
+        .insert({
+
+          name:name,
+
+          price:Number(price),
+
+          description:description
+
+        });
+
+  }
+
+
+  if(result.error){
+
+    message.className="error";
+
+    message.textContent =
+      "Error: " + result.error.message;
+
+    return;
+  }
+
+
+  message.className="success";
+
+  message.textContent =
+    editingMenuId
+      ? "Menu item updated successfully!"
+      : "Menu item saved successfully!";
+
+
+  cancelMenuEdit();
+
+  loadData();
+
+}
+
+
+/* LOAD GALLERY */
+
+async function loadGallery(){
+
+  const {data,error} =
+    await db
+      .from("gallery")
+      .select("*")
+      .order("id",{ascending:true});
+
+
+  const box =
+    document.getElementById(
+      "galleryList"
+    );
+
+
+  if(error){
+
+    box.innerHTML =
+      `<p class="error">${escapeHTML(error.message)}</p>`;
+
+    return;
+  }
+
+
+  if(!data || data.length===0){
+
+    box.innerHTML =
+      "<p>No gallery images yet.</p>";
+
+    return;
+  }
+
+
+  box.innerHTML =
+    data.map(item => `
+
+      <div style="
+        background:#f6f4e8;
+        padding:15px;
+        border-radius:10px;
+        margin-bottom:10px;
+      ">
+
+        <strong>
+          ${escapeHTML(item.title || "")}
+        </strong>
+
+        <p>
+          ${escapeHTML(item.image_url || "")}
+        </p>
+
+        <button
+          class="edit-btn"
+          onclick="editGallery(${item.id})"
+        >
+          Edit
+        </button>
+
+        <button
+          class="delete-btn"
+          onclick="deleteGallery(${item.id})"
+        >
+          Delete
+        </button>
+
+      </div>
+
+    `).join("");
+
+}
+
+
+/* EDIT GALLERY */
+
+async function editGallery(id){
+
+  const {data,error} =
+    await db
+      .from("gallery")
+      .select("*")
+      .eq("id",id)
+      .single();
+
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+  }
+
+
+  editingGalleryId=id;
+
+
+  document.getElementById(
+    "galleryImage"
+  ).value =
+    data.image_url || "";
+
+
+  document.getElementById(
+    "galleryTitle"
+  ).value =
+    data.title || "";
+
+
+  document.getElementById(
+    "cancelGalleryEdit"
+  ).style.display="inline-block";
+
+
+  document.getElementById(
+    "galleryMessage"
+  ).textContent =
+    "Editing gallery image...";
+
+}
+
+
+/* DELETE GALLERY */
+
+async function deleteGallery(id){
+
+  if(!confirm(
+    "Delete this gallery image?"
+  )) return;
+
+
+  const {error} =
+    await db
+      .from("gallery")
+      .delete()
+      .eq("id",id);
+
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+  }
+
+
+  loadData();
+
+}
+
+
+/* CANCEL GALLERY EDIT */
+
+function cancelGalleryEdit(){
+
+  editingGalleryId=null;
+
+  document.getElementById(
+    "galleryImage"
+  ).value="";
+
+  document.getElementById(
+    "galleryTitle"
+  ).value="";
+
+  document.getElementById(
+    "cancelGalleryEdit"
+  ).style.display="none";
+
+  document.getElementById(
+    "galleryMessage"
+  ).textContent="";
+
+}
+
+
+/* SAVE GALLERY */
+
+async function saveGallery(){
+
+  const imageUrl =
+    document
+      .getElementById("galleryImage")
+      .value
+      .trim();
+
+
+  const title =
+    document
+      .getElementById("galleryTitle")
+      .value
+      .trim();
+
+
+  const message =
+    document.getElementById(
+      "galleryMessage"
+    );
+
+
+  if(!imageUrl){
+
+    message.className="error";
+
+    message.textContent =
+      "Please enter an image URL.";
+
+    return;
+  }
+
+
+  message.className="";
+  message.textContent="Saving...";
+
+
+  let result;
+
+
+  if(editingGalleryId){
+
+    result =
+      await db
+        .from("gallery")
+        .update({
+
+          title:title,
+
+          image_url:imageUrl
+
+        })
+        .eq("id",editingGalleryId);
+
+  }else{
+
+    result =
+      await db
+        .from("gallery")
+        .insert({
+
+          title:title,
+
+          image_url:imageUrl,
+
+          display_order:0,
+
+          is_active:true
+
+        });
+
+  }
+
+
+  if(result.error){
+
+    message.className="error";
+
+    message.textContent =
+      "Error: " + result.error.message;
+
+    return;
+  }
+
+
+  message.className="success";
+
+  message.textContent =
+    editingGalleryId
+      ? "Gallery image updated successfully!"
+      : "Gallery image saved successfully!";
+
+
+  cancelGalleryEdit();
+
+  loadData();
+
+}
+
+
+/* LOAD REVIEWS */
+
+async function loadReviews(){
+
+  const {data,error} =
+    await db
+      .from("reviews")
+      .select("*")
+      .order("id",{ascending:true});
+
+
+  const box =
+    document.getElementById(
+      "reviewsList"
+    );
+
+
+  if(error){
+
+    box.innerHTML =
+      `<p class="error">${escapeHTML(error.message)}</p>`;
+
+    return;
+  }
+
+
+  if(!data || data.length===0){
+
+    box.innerHTML =
+      "<p>No reviews yet.</p>";
+
+    return;
+  }
+
+
+  box.innerHTML =
+    data.map(item => `
+
+      <div style="
+        background:#f6f4e8;
+        padding:15px;
+        border-radius:10px;
+        margin-bottom:10px;
+      ">
+
+        <strong>
+          ${escapeHTML(
+            item.customer_name || ""
+          )}
+        </strong>
+
+        <p>
+          Rating:
+          ${escapeHTML(item.rating ?? "")}/5
+        </p>
+
+        <p>
+          ${escapeHTML(
+            item.review_text || ""
+          )}
+        </p>
+
+        <button
+          class="edit-btn"
+          onclick="editReview(${item.id})"
+        >
+          Edit
+        </button>
+
+        <button
+          class="delete-btn"
+          onclick="deleteReview(${item.id})"
+        >
+          Delete
+        </button>
+
+      </div>
+
+    `).join("");
+
+}
+
+
+/* EDIT REVIEW */
+
+async function editReview(id){
+
+  const {data,error} =
+    await db
+      .from("reviews")
+      .select("*")
+      .eq("id",id)
+      .single();
+
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+  }
+
+
+  editingReviewId=id;
+
+
+  document.getElementById(
+    "customerName"
+  ).value =
+    data.customer_name || "";
+
+
+  document.getElementById(
+    "reviewText"
+  ).value =
+    data.review_text || "";
+
+
+  document.getElementById(
+    "reviewRating"
+  ).value =
+    data.rating || "";
+
+
+  document.getElementById(
+    "cancelReviewEdit"
+  ).style.display="inline-block";
+
+
+  document.getElementById(
+    "reviewMessage"
+  ).textContent =
+    "Editing review...";
+
+}
+
+
+/* DELETE REVIEW */
+
+async function deleteReview(id){
+
+  if(!confirm(
+    "Delete this review?"
+  )) return;
+
+
+  const {error} =
+    await db
+      .from("reviews")
+      .delete()
+      .eq("id",id);
+
+
+  if(error){
+
+    alert(error.message);
+
+    return;
+  }
+
+
+  loadData();
+
+}
+
+
+/* CANCEL REVIEW EDIT */
+
+function cancelReviewEdit(){
+
+  editingReviewId=null;
+
+  document.getElementById(
+    "customerName"
+  ).value="";
+
+  document.getElementById(
+    "reviewText"
+  ).value="";
+
+  document.getElementById(
+    "reviewRating"
+  ).value="";
+
+
+  document.getElementById(
+    "cancelReviewEdit"
+  ).style.display="none";
+
+
+  document.getElementById(
+    "reviewMessage"
+  ).textContent="";
+
+}
+
+
+/* SAVE REVIEW */
+
+async function saveReview(){
+
+  const customerName =
+    document
+      .getElementById("customerName")
+      .value
+      .trim();
+
+
+  const reviewText =
+    document
+      .getElementById("reviewText")
+      .value
+      .trim();
+
+
+  const rating =
+    document.getElementById(
+      "reviewRating"
+    ).value;
+
+
+  const message =
+    document.getElementById(
+      "reviewMessage"
+    );
+
+
+  if(
+    !customerName ||
+    !reviewText ||
+    !rating
+  ){
+
+    message.className="error";
+
+    message.textContent =
+      "Please enter customer name, review and rating.";
+
+    return;
+  }
+
+
+  message.className="";
+  message.textContent="Saving...";
+
+
+  let result;
+
+
+  if(editingReviewId){
+
+    result =
+      await db
+        .from("reviews")
+        .update({
+
+          customer_name:customerName,
+
+          review_text:reviewText,
+
+          rating:Number(rating)
+
+        })
+        .eq("id",editingReviewId);
+
+  }else{
+
+    result =
+      await db
+        .from("reviews")
+        .insert({
+
+          customer_name:customerName,
+
+          review_text:reviewText,
+
+          rating:Number(rating),
+
+          is_active:true
+
+        });
+
+  }
+
+
+  if(result.error){
+
+    message.className="error";
+
+    message.textContent =
+      "Error: " + result.error.message;
+
+    return;
+  }
+
+
+  message.className="success";
+
+  message.textContent =
+    editingReviewId
+      ? "Review updated successfully!"
+      : "Review saved successfully!";
+
+
+  cancelReviewEdit();
+
+  loadData();
+
+}
+
+
+/* LOAD ENQUIRIES */
+
+async function loadEnquiries(){
+
+  const {data,error} =
+    await db
+      .from("enquiries")
+      .select("*")
+      .order("id",{ascending:false});
+
+
+  const tbody =
+    document.getElementById(
+      "enquiries"
+    );
+
+
+  if(error){
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8">
+          Error loading enquiries:
+          ${escapeHTML(error.message)}
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  if(!data || data.length===0){
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8">
+          No enquiries yet.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  tbody.innerHTML =
+    data.map(item => {
+
+      const date =
+        item.created_at
+          ? new Date(
+              item.created_at
+            ).toLocaleString()
+          : "";
+
+
+      const phone =
+        item.phone || "";
+
+
+      const whatsappNumber =
+        phone.replace(/\D/g,"");
+
+
+      return `
+
+        <tr>
+
+          <td>
+            ${escapeHTML(item.name || "")}
+          </td>
+
+          <td>
+            ${escapeHTML(item.phone || "")}
+          </td>
+
+          <td>
+            ${escapeHTML(item.email || "")}
+          </td>
+
+          <td>
+            ${escapeHTML(item.location || "")}
+          </td>
+
+          <td>
+            ${escapeHTML(item.message || "")}
+          </td>
+
+          <td>
+            ${escapeHTML(item.status || "new")}
+          </td>
+
+          <td>
+            ${escapeHTML(date)}
+          </td>
+
+          <td class="action-buttons">
+
+            ${
+              whatsappNumber
+              ?
+              `<a
+                href="https://wa.me/${whatsappNumber}"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="
+                  display:inline-block;
+                  margin:3px;
+                  padding:7px 10px;
+                  background:#25D366;
+                  color:white;
+                  border-radius:7px;
+                  text-decoration:none;
+                  font-weight:bold;
+                "
+              >
+                WhatsApp
+              </a>`
+              :
+              ""
+            }
+
+
+            ${
+              phone
+              ?
+              `<a
+                href="tel:${encodeURIComponent(phone)}"
+                style="
+                  display:inline-block;
+                  margin:3px;
+                  padding:7px 10px;
+                  background:#3d2b21;
+                  color:white;
+                  border-radius:7px;
+                  text-decoration:none;
+                  font-weight:bold;
+                "
+              >
+                Call
+              </a>`
+              :
+              ""
+            }
+
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* SAFE TEXT */
+
+function escapeHTML(value){
+
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* LOGOUT */
+
+async function logout(){
+
+  await db.auth.signOut();
+
+  window.location.href="admin.html";
+
+}
+
+
+/* START */
+
+checkLogin();
+
 </script>
 
 </body>
