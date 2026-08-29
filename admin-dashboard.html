@@ -117,6 +117,25 @@ hr{
   border-top:1px solid #ddd;
   margin:20px 0
 }
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:900px
+}
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid #ddd;
+  text-align:left;
+  vertical-align:top;
+  font-size:14px
+}
+
+th{
+  background:#f6f4e8;
+  font-weight:bold
+}
 </style>
 
 </head>
@@ -138,7 +157,9 @@ hr{
 
 <h2>Site Content</h2>
 
-<label for="contentTitle">Section</label> <input
+<label for="contentTitle">Section</label>
+
+<input
 id="contentTitle"
 type="text"
 placeholder="Example: About">
@@ -167,12 +188,16 @@ placeholder="Example: About">
 
 <h2>Menu Items</h2>
 
-<label for="menuName">Name</label> <input
+<label for="menuName">Name</label>
+
+<input
 id="menuName"
 type="text"
 placeholder="Example: Chocolate Waffle">
 
-<label for="menuPrice">Price</label> <input
+<label for="menuPrice">Price</label>
+
+<input
 id="menuPrice"
 type="number"
 placeholder="Example: 149">
@@ -285,7 +310,36 @@ placeholder="Example: Rahul">
 
 <h2>Enquiries</h2>
 
-<pre id="enquiries">Loading...</pre>
+<div style="overflow-x:auto;">
+
+<table id="enquiriesTable">
+
+<thead>
+
+<tr>
+  <th>Name</th>
+  <th>Phone</th>
+  <th>Email</th>
+  <th>Location</th>
+  <th>Message</th>
+  <th>Status</th>
+  <th>Date</th>
+  <th>Actions</th>
+</tr>
+
+</thead>
+
+<tbody id="enquiries">
+
+<tr>
+  <td colspan="8">Loading...</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
 
 </div>
 
@@ -293,12 +347,14 @@ placeholder="Example: Rahul">
 
 <script>
 
+
+/* SUPABASE */
+
 const SUPABASE_URL =
 "https://vxcbpbcqiqwgiapgvoxy.supabase.co";
 
 const SUPABASE_KEY =
 "sb_publishable_sSh0vTRY28VnBKP8Zunosg_07RmB9BJ";
-
 
 const {createClient} = supabase;
 
@@ -334,10 +390,13 @@ async function checkLogin(){
 
 async function loadData(){
 
-  const site =
-    await db
-      .from("site_content")
-      .select("*");
+
+  /* SITE CONTENT */
+
+  const site = await db
+    .from("site_content")
+    .select("*")
+    .order("id",{ascending:true});
 
   document.getElementById("siteContent").textContent =
     JSON.stringify(
@@ -347,10 +406,12 @@ async function loadData(){
     );
 
 
-  const menu =
-    await db
-      .from("menu_items")
-      .select("*");
+  /* MENU */
+
+  const menu = await db
+    .from("menu_items")
+    .select("*")
+    .order("id",{ascending:true});
 
   document.getElementById("menuItems").textContent =
     JSON.stringify(
@@ -360,10 +421,12 @@ async function loadData(){
     );
 
 
-  const gallery =
-    await db
-      .from("gallery")
-      .select("*");
+  /* GALLERY */
+
+  const gallery = await db
+    .from("gallery")
+    .select("*")
+    .order("id",{ascending:true});
 
   document.getElementById("gallery").textContent =
     JSON.stringify(
@@ -373,10 +436,12 @@ async function loadData(){
     );
 
 
-  const reviews =
-    await db
-      .from("reviews")
-      .select("*");
+  /* REVIEWS */
+
+  const reviews = await db
+    .from("reviews")
+    .select("*")
+    .order("id",{ascending:true});
 
   document.getElementById("reviews").textContent =
     JSON.stringify(
@@ -386,17 +451,173 @@ async function loadData(){
     );
 
 
-  const enquiries =
-    await db
-      .from("enquiries")
-      .select("*");
+  /* ENQUIRIES */
 
-  document.getElementById("enquiries").textContent =
-    JSON.stringify(
-      enquiries.data || [],
-      null,
-      2
-    );
+  const enquiries = await db
+    .from("enquiries")
+    .select("*")
+    .order("id",{ascending:false});
+
+
+  const tbody =
+    document.getElementById("enquiries");
+
+
+  if(enquiries.error){
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8">
+          Error loading enquiries:
+          ${escapeHTML(enquiries.error.message)}
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  if(
+    !enquiries.data ||
+    enquiries.data.length === 0
+  ){
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8">
+          No enquiries yet.
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+
+  tbody.innerHTML =
+    enquiries.data.map(item => {
+
+
+      const date =
+        item.created_at
+          ? new Date(
+              item.created_at
+            ).toLocaleString()
+          : "";
+
+
+      const phone =
+        item.phone || "";
+
+
+      const whatsappNumber =
+        phone.replace(/\D/g,"");
+
+
+      return `
+
+        <tr>
+
+          <td>
+            ${escapeHTML(item.name || "")}
+          </td>
+
+          <td>
+            ${escapeHTML(item.phone || "")}
+          </td>
+
+          <td>
+            ${escapeHTML(item.email || "")}
+          </td>
+
+          <td>
+            ${escapeHTML(item.location || "")}
+          </td>
+
+          <td>
+            ${escapeHTML(item.message || "")}
+          </td>
+
+          <td>
+            ${escapeHTML(item.status || "new")}
+          </td>
+
+          <td>
+            ${escapeHTML(date)}
+          </td>
+
+          <td>
+
+            ${
+              whatsappNumber
+              ?
+              `<a
+                href="https://wa.me/${whatsappNumber}"
+                target="_blank"
+                rel="noopener noreferrer"
+                style="
+                  display:inline-block;
+                  margin:3px;
+                  padding:7px 10px;
+                  background:#25D366;
+                  color:white;
+                  border-radius:7px;
+                  text-decoration:none;
+                  font-weight:bold;
+                "
+              >
+                WhatsApp
+              </a>`
+              :
+              ""
+            }
+
+
+            ${
+              phone
+              ?
+              `<a
+                href="tel:${encodeURIComponent(phone)}"
+                style="
+                  display:inline-block;
+                  margin:3px;
+                  padding:7px 10px;
+                  background:#3d2b21;
+                  color:white;
+                  border-radius:7px;
+                  text-decoration:none;
+                  font-weight:bold;
+                "
+              >
+                Call
+              </a>`
+              :
+              ""
+            }
+
+          </td>
+
+        </tr>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* SAFE TEXT */
+
+function escapeHTML(value){
+
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
 }
 
 
@@ -410,14 +631,18 @@ async function saveSiteContent(){
       .value
       .trim();
 
+
   const text =
     document
       .getElementById("contentText")
       .value
       .trim();
 
+
   const message =
-    document.getElementById("contentMessage");
+    document.getElementById(
+      "contentMessage"
+    );
 
 
   if(!section || !text){
@@ -466,11 +691,18 @@ async function saveSiteContent(){
     "Site content saved successfully!";
 
 
-  document.getElementById("contentTitle").value="";
-  document.getElementById("contentText").value="";
+  document.getElementById(
+    "contentTitle"
+  ).value="";
+
+
+  document.getElementById(
+    "contentText"
+  ).value="";
 
 
   loadData();
+
 }
 
 
@@ -484,10 +716,12 @@ async function saveMenuItem(){
       .value
       .trim();
 
+
   const price =
-    document
-      .getElementById("menuPrice")
-      .value;
+    document.getElementById(
+      "menuPrice"
+    ).value;
+
 
   const description =
     document
@@ -495,8 +729,11 @@ async function saveMenuItem(){
       .value
       .trim();
 
+
   const message =
-    document.getElementById("menuMessage");
+    document.getElementById(
+      "menuMessage"
+    );
 
 
   if(!name || !price){
@@ -545,12 +782,23 @@ async function saveMenuItem(){
     "Menu item saved successfully!";
 
 
-  document.getElementById("menuName").value="";
-  document.getElementById("menuPrice").value="";
-  document.getElementById("menuDescription").value="";
+  document.getElementById(
+    "menuName"
+  ).value="";
+
+
+  document.getElementById(
+    "menuPrice"
+  ).value="";
+
+
+  document.getElementById(
+    "menuDescription"
+  ).value="";
 
 
   loadData();
+
 }
 
 
@@ -564,14 +812,18 @@ async function saveGallery(){
       .value
       .trim();
 
+
   const title =
     document
       .getElementById("galleryTitle")
       .value
       .trim();
 
+
   const message =
-    document.getElementById("galleryMessage");
+    document.getElementById(
+      "galleryMessage"
+    );
 
 
   if(!imageUrl){
@@ -622,11 +874,18 @@ async function saveGallery(){
     "Gallery image saved successfully!";
 
 
-  document.getElementById("galleryImage").value="";
-  document.getElementById("galleryTitle").value="";
+  document.getElementById(
+    "galleryImage"
+  ).value="";
+
+
+  document.getElementById(
+    "galleryTitle"
+  ).value="";
 
 
   loadData();
+
 }
 
 
@@ -640,22 +899,31 @@ async function saveReview(){
       .value
       .trim();
 
+
   const reviewText =
     document
       .getElementById("reviewText")
       .value
       .trim();
 
+
   const rating =
-    document
-      .getElementById("reviewRating")
-      .value;
+    document.getElementById(
+      "reviewRating"
+    ).value;
+
 
   const message =
-    document.getElementById("reviewMessage");
+    document.getElementById(
+      "reviewMessage"
+    );
 
 
-  if(!customerName || !reviewText || !rating){
+  if(
+    !customerName ||
+    !reviewText ||
+    !rating
+  ){
 
     message.className="error";
 
@@ -703,12 +971,23 @@ async function saveReview(){
     "Review saved successfully!";
 
 
-  document.getElementById("customerName").value="";
-  document.getElementById("reviewText").value="";
-  document.getElementById("reviewRating").value="";
+  document.getElementById(
+    "customerName"
+  ).value="";
+
+
+  document.getElementById(
+    "reviewText"
+  ).value="";
+
+
+  document.getElementById(
+    "reviewRating"
+  ).value="";
 
 
   loadData();
+
 }
 
 
@@ -719,6 +998,7 @@ async function logout(){
   await db.auth.signOut();
 
   window.location.href="admin.html";
+
 }
 
 
