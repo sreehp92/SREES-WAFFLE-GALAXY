@@ -22,7 +22,7 @@ label{display:block;margin:12px 0 6px;font-weight:bold;font-size:14px}
 input,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;font:inherit}
 textarea{min-height:120px;resize:vertical}
 .message{padding:12px;background:#e5eee4;border-radius:10px;margin-bottom:20px}
-#contentMessage{font-weight:bold}
+#contentMessage,#menuMessage{font-weight:bold}
 pre{white-space:pre-wrap;word-break:break-word;background:#f6f4e8;padding:15px;border-radius:10px}
 </style>
 
@@ -40,27 +40,43 @@ pre{white-space:pre-wrap;word-break:break-word;background:#f6f4e8;padding:15px;b
 <div id="message" class="message">Loading...</div>
 
 <div class="card">
-  <h2>Site Content</h2>
+<h2>Site Content</h2>
 
 <label for="contentTitle">Section</label> <input id="contentTitle" type="text" placeholder="Example: About">
 
 <label for="contentText">Content</label>
 
-  <textarea id="contentText" placeholder="Enter website content"></textarea>
+<textarea id="contentText" placeholder="Enter website content"></textarea>
 
 <button onclick="saveSiteContent()">Save Site Content</button>
 
-  <p id="contentMessage"></p>
+<p id="contentMessage"></p>
 
-  <hr>
+<hr>
 
-  <pre id="siteContent">Loading...</pre>
+<pre id="siteContent">Loading...</pre>
 
 </div>
 
 <div class="card">
 <h2>Menu Items</h2>
+
+<label for="menuName">Name</label> <input id="menuName" type="text" placeholder="Example: Chocolate Waffle">
+
+<label for="menuPrice">Price</label> <input id="menuPrice" type="number" placeholder="Example: 149">
+
+<label for="menuDescription">Description</label>
+
+<textarea id="menuDescription" placeholder="Enter menu item description"></textarea>
+
+<button onclick="saveMenuItem()">Save Menu Item</button>
+
+<p id="menuMessage"></p>
+
+<hr>
+
 <pre id="menuItems">Loading...</pre>
+
 </div>
 
 <div class="card">
@@ -153,6 +169,42 @@ async function saveSiteContent(){
 
   document.getElementById("contentTitle").value="";
   document.getElementById("contentText").value="";
+
+  loadData();
+}
+
+async function saveMenuItem(){
+
+  const name=document.getElementById("menuName").value.trim();
+  const price=document.getElementById("menuPrice").value;
+  const description=document.getElementById("menuDescription").value.trim();
+  const message=document.getElementById("menuMessage");
+
+  if(!name || !price){
+    message.textContent="Please enter name and price.";
+    return;
+  }
+
+  message.textContent="Saving...";
+
+  const {error}=await db
+    .from("menu_items")
+    .insert({
+      name:name,
+      price:Number(price),
+      description:description
+    });
+
+  if(error){
+    message.textContent="Error: "+error.message;
+    return;
+  }
+
+  message.textContent="Menu item saved successfully!";
+
+  document.getElementById("menuName").value="";
+  document.getElementById("menuPrice").value="";
+  document.getElementById("menuDescription").value="";
 
   loadData();
 }
