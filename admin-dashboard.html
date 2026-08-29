@@ -1,354 +1,1385 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sree's Waffle Galaxy - Admin Dashboard</title>
+<title>Sree's Waffle Galaxy — Admin</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+:root{
+  --brown:#3d2b21;
+  --brown2:#5b4031;
+  --cream:#f7f3e8;
+  --card:#fffdf8;
+  --gold:#d99a35;
+  --green:#16834b;
+  --red:#c53b3b;
+  --blue:#2867c7;
+  --muted:#756b64;
+  --border:#e8e1d6;
+  --shadow:0 10px 35px rgba(61,43,33,.08);
+  --radius:18px;
+}
+
 *{box-sizing:border-box}
+
+html{scroll-behavior:smooth}
 
 body{
   margin:0;
-  background:#f6f4e8;
-  color:#3d2b21;
-  font-family:Arial,sans-serif
+  background:var(--cream);
+  color:var(--brown);
+  font-family:Inter,Arial,Helvetica,sans-serif;
 }
 
-header{
-  background:#3d2b21;
-  color:white;
-  padding:18px 25px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center
-}
-
-header h1{
-  margin:0;
-  font-size:20px
-}
+button,input,textarea,select{font:inherit}
 
 button{
   border:0;
-  border-radius:8px;
-  padding:10px 15px;
   cursor:pointer;
-  font-weight:bold;
-  background:#3d2b21;
+}
+
+a{text-decoration:none}
+
+.app{
+  min-height:100vh;
+  display:flex;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+  width:250px;
+  background:var(--brown);
   color:white;
-  margin-top:8px
+  position:fixed;
+  left:0;
+  top:0;
+  bottom:0;
+  z-index:100;
+  padding:22px 16px;
+  overflow-y:auto;
 }
 
-.logout{
-  background:#dc9b9b;
-  color:#3d2b21
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:8px 10px 24px;
+  border-bottom:1px solid rgba(255,255,255,.12);
 }
 
-main{
-  max-width:1100px;
-  margin:30px auto;
-  padding:0 18px
+.brand-logo{
+  width:46px;
+  height:46px;
+  border-radius:13px;
+  object-fit:cover;
+  background:white;
 }
+
+.brand h1{
+  margin:0;
+  font-size:16px;
+  line-height:1.25;
+}
+
+.brand span{
+  display:block;
+  color:#d9cfc7;
+  font-size:11px;
+  margin-top:3px;
+}
+
+.nav{
+  margin-top:22px;
+}
+
+.nav-title{
+  color:#aa9d94;
+  font-size:10px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:1.3px;
+  padding:0 12px 9px;
+}
+
+.nav button{
+  width:100%;
+  text-align:left;
+  background:transparent;
+  color:#ded5ce;
+  padding:12px 13px;
+  margin:3px 0;
+  border-radius:11px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  transition:.2s;
+}
+
+.nav button:hover,
+.nav button.active{
+  background:#5b4031;
+  color:white;
+}
+
+.nav-icon{
+  width:20px;
+  text-align:center;
+}
+
+.sidebar-bottom{
+  margin-top:30px;
+  border-top:1px solid rgba(255,255,255,.12);
+  padding-top:18px;
+}
+
+.user-box{
+  padding:10px 12px;
+  color:#d8cdc5;
+  font-size:12px;
+  word-break:break-word;
+}
+
+.logout-btn{
+  width:100%;
+  margin-top:10px;
+  padding:11px;
+  border-radius:10px;
+  background:#e4a1a1;
+  color:var(--brown);
+  font-weight:800;
+}
+
+/* MAIN */
+
+.main{
+  margin-left:250px;
+  width:calc(100% - 250px);
+  min-height:100vh;
+}
+
+.topbar{
+  height:72px;
+  background:rgba(255,253,248,.94);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 30px;
+  position:sticky;
+  top:0;
+  z-index:50;
+  backdrop-filter:blur(10px);
+}
+
+.topbar-title{
+  font-size:20px;
+  font-weight:800;
+}
+
+.mobile-menu{
+  display:none;
+  background:var(--brown);
+  color:white;
+  border-radius:9px;
+  padding:8px 11px;
+}
+
+.content{
+  padding:30px;
+  max-width:1500px;
+  margin:auto;
+}
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+.page-heading{
+  margin-bottom:25px;
+}
+
+.page-heading h2{
+  margin:0 0 6px;
+  font-size:28px;
+}
+
+.page-heading p{
+  margin:0;
+  color:var(--muted);
+}
+
+/* DASHBOARD CARDS */
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+  margin-bottom:25px;
+}
+
+.stat{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:var(--shadow);
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.stat-icon{
+  width:50px;
+  height:50px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:23px;
+  background:#f0e7d7;
+}
+
+.stat h3{
+  margin:0;
+  font-size:25px;
+}
+
+.stat p{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+/* CARDS */
 
 .card{
-  background:#fffdf8;
-  border-radius:18px;
-  padding:25px;
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:23px;
   margin-bottom:20px;
-  box-shadow:0 8px 30px rgba(61,43,33,.1)
 }
 
-h2{
-  margin-top:0
+.card-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.card-header h3{
+  margin:0;
+  font-size:19px;
+}
+
+.card-header p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+/* FORMS */
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+}
+
+.form-group{
+  margin-bottom:2px;
+}
+
+.form-group.full{
+  grid-column:1/-1;
 }
 
 label{
   display:block;
-  margin:12px 0 6px;
-  font-weight:bold;
-  font-size:14px
+  font-weight:750;
+  font-size:13px;
+  margin-bottom:7px;
 }
 
 input,textarea,select{
   width:100%;
-  padding:12px;
-  border:1px solid #ddd;
-  border-radius:10px;
-  font:inherit
+  border:1px solid var(--border);
+  background:white;
+  color:var(--brown);
+  padding:12px 13px;
+  border-radius:11px;
+  outline:none;
+  transition:.2s;
+}
+
+input:focus,textarea:focus,select:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(217,154,53,.12);
 }
 
 textarea{
-  min-height:120px;
-  resize:vertical
+  min-height:110px;
+  resize:vertical;
 }
 
-.message{
-  padding:12px;
-  background:#e5eee4;
+.form-actions{
+  margin-top:17px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+/* BUTTONS */
+
+.btn{
+  padding:10px 15px;
   border-radius:10px;
-  margin-bottom:20px;
-  font-weight:bold
+  font-weight:800;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
 }
 
-.success{
-  color:#287a3d;
-  font-weight:bold
+.btn-primary{
+  background:var(--brown);
+  color:white;
 }
 
-.error{
-  color:#b3261e;
-  font-weight:bold
+.btn-primary:hover{background:var(--brown2)}
+
+.btn-secondary{
+  background:#eee8dd;
+  color:var(--brown);
 }
 
-pre{
-  white-space:pre-wrap;
-  word-break:break-word;
-  background:#f6f4e8;
-  padding:15px;
-  border-radius:10px
+.btn-green{
+  background:var(--green);
+  color:white;
 }
 
-hr{
-  border:0;
-  border-top:1px solid #ddd;
-  margin:20px 0
+.btn-red{
+  background:#fbe2e2;
+  color:#a82c2c;
+}
+
+.btn-blue{
+  background:#e2edff;
+  color:#2059ae;
+}
+
+.btn-small{
+  padding:7px 9px;
+  border-radius:8px;
+  font-size:12px;
+}
+
+/* TOOLBAR */
+
+.toolbar{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+}
+
+.toolbar input{
+  max-width:330px;
+}
+
+.toolbar select{
+  max-width:190px;
+}
+
+/* TABLE */
+
+.table-wrap{
+  overflow:auto;
+  border:1px solid var(--border);
+  border-radius:13px;
 }
 
 table{
   width:100%;
   border-collapse:collapse;
-  min-width:900px
+  min-width:850px;
 }
 
 th,td{
-  padding:10px;
-  border-bottom:1px solid #ddd;
+  padding:13px 12px;
+  border-bottom:1px solid var(--border);
   text-align:left;
-  vertical-align:top;
-  font-size:14px
+  vertical-align:middle;
+  font-size:13px;
 }
 
 th{
-  background:#f6f4e8;
-  font-weight:bold
+  background:#f7f2e9;
+  color:#5c514a;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+
+tr:last-child td{border-bottom:0}
+
+tr:hover td{
+  background:#fffaf0;
+}
+
+.actions{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+}
+
+.badge-active{
+  color:#116638;
+  background:#dff4e8;
+}
+
+.badge-inactive{
+  color:#8a3434;
+  background:#f8dddd;
+}
+
+.badge-new{
+  color:#a06408;
+  background:#fff0c9;
+}
+
+.badge-contacted{
+  color:#2059ae;
+  background:#e2edff;
+}
+
+.badge-completed{
+  color:#116638;
+  background:#dff4e8;
+}
+
+/* GALLERY */
+
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+}
+
+.gallery-card{
+  border:1px solid var(--border);
+  border-radius:14px;
+  overflow:hidden;
+  background:white;
+}
+
+.gallery-image{
+  width:100%;
+  height:170px;
+  object-fit:cover;
+  display:block;
+  background:#eee;
+}
+
+.gallery-info{
+  padding:13px;
+}
+
+.gallery-info h4{
+  margin:0 0 5px;
+}
+
+.gallery-info p{
+  margin:0 0 10px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+/* REVIEW */
+
+.stars{
+  color:#e7a51f;
+  letter-spacing:1px;
+  font-size:15px;
+}
+
+/* SWITCH */
+
+.switch{
+  position:relative;
+  display:inline-block;
+  width:42px;
+  height:23px;
+}
+
+.switch input{
+  opacity:0;
+  width:0;
+  height:0;
+}
+
+.slider{
+  position:absolute;
+  cursor:pointer;
+  inset:0;
+  background:#ccc;
+  border-radius:30px;
+  transition:.2s;
+}
+
+.slider:before{
+  content:"";
+  position:absolute;
+  width:17px;
+  height:17px;
+  left:3px;
+  top:3px;
+  background:white;
+  border-radius:50%;
+  transition:.2s;
+}
+
+.switch input:checked + .slider{
+  background:var(--green);
+}
+
+.switch input:checked + .slider:before{
+  transform:translateX(19px);
+}
+
+/* EMPTY */
+
+.empty{
+  text-align:center;
+  padding:35px;
+  color:var(--muted);
+}
+
+/* TOAST */
+
+#toastContainer{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  z-index:1000;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.toast{
+  min-width:260px;
+  max-width:400px;
+  background:#30231d;
+  color:white;
+  padding:13px 16px;
+  border-radius:12px;
+  box-shadow:0 12px 35px rgba(0,0,0,.2);
+  animation:slideIn .25s ease;
+  font-size:13px;
+}
+
+.toast.success{border-left:4px solid #35b96f}
+.toast.error{border-left:4px solid #ef6868}
+
+@keyframes slideIn{
+  from{transform:translateX(30px);opacity:0}
+  to{transform:translateX(0);opacity:1}
+}
+
+/* MODAL */
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(31,22,17,.58);
+  z-index:500;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.modal.show{
+  display:flex;
+}
+
+.modal-box{
+  width:min(680px,100%);
+  max-height:90vh;
+  overflow:auto;
+  background:var(--card);
+  border-radius:20px;
+  padding:25px;
+  box-shadow:0 25px 70px rgba(0,0,0,.25);
+}
+
+.modal-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:20px;
+}
+
+.modal-header h3{
+  margin:0;
+}
+
+.close{
+  background:#eee8dd;
+  width:35px;
+  height:35px;
+  border-radius:9px;
+  font-size:18px;
+  color:var(--brown);
+}
+
+.preview{
+  width:100%;
+  max-height:260px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-top:8px;
+  display:none;
+}
+
+/* NOTICE */
+
+.notice{
+  padding:12px 14px;
+  background:#fff5d8;
+  border:1px solid #f1dfad;
+  color:#765711;
+  border-radius:11px;
+  font-size:13px;
+  margin-bottom:17px;
+}
+
+/* MOBILE */
+
+@media(max-width:1050px){
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .gallery-grid{
+    grid-template-columns:repeat(3,1fr);
+  }
+}
+
+@media(max-width:800px){
+  .sidebar{
+    transform:translateX(-100%);
+    transition:.25s;
+  }
+
+  .sidebar.open{
+    transform:translateX(0);
+  }
+
+  .main{
+    margin-left:0;
+    width:100%;
+  }
+
+  .mobile-menu{
+    display:block;
+  }
+
+  .topbar{
+    padding:0 17px;
+  }
+
+  .topbar-title{
+    font-size:16px;
+  }
+
+  .content{
+    padding:18px;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .form-group.full{
+    grid-column:auto;
+  }
+
+  .gallery-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:550px){
+  .stats{
+    grid-template-columns:1fr;
+  }
+
+  .gallery-grid{
+    grid-template-columns:1fr;
+  }
+
+  .card{
+    padding:16px;
+  }
+
+  .page-heading h2{
+    font-size:23px;
+  }
+
+  #toastContainer{
+    left:15px;
+    right:15px;
+    bottom:15px;
+  }
+
+  .toast{
+    min-width:0;
+    width:100%;
+  }
 }
 </style>
-
 </head>
 
 <body>
 
-<header>
-  <h1>Sree's Waffle Galaxy — Admin</h1>
-  <button class="logout" onclick="logout()">Logout</button>
-</header>
+<div class="app">
 
-<main>
+<!-- SIDEBAR -->
 
-<div id="message" class="message">Loading...</div>
+<aside class="sidebar" id="sidebar">
 
-<!-- SITE CONTENT -->
+  <div class="brand">
+    <img src="LOGO.PNG.png" class="brand-logo" alt="Sree's Waffle Galaxy">
+    <div>
+      <h1>Sree's Waffle Galaxy</h1>
+      <span>Administration Panel</span>
+    </div>
+  </div>
 
-<div class="card">
+  <nav class="nav">
 
-<h2>Site Content</h2>
+    <div class="nav-title">Main</div>
 
-<label for="contentTitle">Section</label>
+    <button class="nav-btn active" data-page="dashboard">
+      <span class="nav-icon">📊</span>
+      Dashboard
+    </button>
 
-<input
-id="contentTitle"
-type="text"
-placeholder="Example: About">
+    <button class="nav-btn" data-page="content">
+      <span class="nav-icon">📝</span>
+      Site Content
+    </button>
 
-<label for="contentText">Content</label>
+    <button class="nav-btn" data-page="menu">
+      <span class="nav-icon">🧇</span>
+      Menu Items
+    </button>
 
-<textarea
-  id="contentText"
-  placeholder="Enter website content"></textarea>
+    <button class="nav-btn" data-page="gallery">
+      <span class="nav-icon">🖼️</span>
+      Gallery
+    </button>
 
-<button onclick="saveSiteContent()">
-  Save Site Content
-</button>
+    <button class="nav-btn" data-page="reviews">
+      <span class="nav-icon">⭐</span>
+      Reviews
+    </button>
 
-<p id="contentMessage"></p>
+    <button class="nav-btn" data-page="enquiries">
+      <span class="nav-icon">📩</span>
+      Enquiries
+    </button>
 
-<hr>
+  </nav>
 
-<pre id="siteContent">Loading...</pre>
+  <div class="sidebar-bottom">
+    <div class="user-box">
+      Logged in as<br>
+      <strong id="userEmail">Loading...</strong>
+    </div>
+
+    <button class="logout-btn" onclick="logout()">
+      Logout
+    </button>
+  </div>
+
+</aside>
+
+<!-- MAIN -->
+
+<section class="main">
+
+  <header class="topbar">
+    <button class="mobile-menu" onclick="toggleSidebar()">☰</button>
+    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    <div></div>
+  </header>
+
+  <main class="content">
+
+    <!-- DASHBOARD -->
+
+    <section class="page active" id="page-dashboard">
+
+      <div class="page-heading">
+        <h2>Dashboard</h2>
+        <p>Welcome back. Manage your waffle website from here.</p>
+      </div>
+
+      <div class="stats">
+
+        <div class="stat">
+          <div class="stat-icon">🧇</div>
+          <div>
+            <h3 id="statMenu">0</h3>
+            <p>Menu Items</p>
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-icon">🖼️</div>
+          <div>
+            <h3 id="statGallery">0</h3>
+            <p>Gallery Images</p>
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-icon">⭐</div>
+          <div>
+            <h3 id="statReviews">0</h3>
+            <p>Reviews</p>
+          </div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-icon">📩</div>
+          <div>
+            <h3 id="statEnquiries">0</h3>
+            <p>New Enquiries</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card">
+
+        <div class="card-header">
+          <div>
+            <h3>Recent Enquiries</h3>
+            <p>Your latest customer enquiries</p>
+          </div>
+
+          <button class="btn btn-secondary" onclick="showPage('enquiries')">
+            View All
+          </button>
+        </div>
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Location</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+
+            <tbody id="recentEnquiries">
+              <tr>
+                <td colspan="6" class="empty">Loading...</td>
+              </tr>
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- SITE CONTENT -->
+
+    <section class="page" id="page-content">
+
+      <div class="page-heading">
+        <h2>Site Content</h2>
+        <p>Manage text and content displayed across your website.</p>
+      </div>
+
+      <div class="card">
+
+        <div class="card-header">
+          <div>
+            <h3>Add Site Content</h3>
+            <p>Create a new website content section.</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>Section</label>
+            <input id="contentTitle" placeholder="Example: About">
+          </div>
+
+          <div class="form-group full">
+            <label>Content</label>
+            <textarea id="contentText" placeholder="Enter website content"></textarea>
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="saveSiteContent()">
+            Save Content
+          </button>
+        </div>
+
+      </div>
+
+      <div class="card">
+
+        <div class="card-header">
+          <div>
+            <h3>Content Sections</h3>
+            <p>Edit or remove existing website content.</p>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Section</th>
+                <th>Content</th>
+                <th>Updated</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody id="contentTable">
+              <tr>
+                <td colspan="5" class="empty">Loading...</td>
+              </tr>
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- MENU -->
+
+    <section class="page" id="page-menu">
+
+      <div class="page-heading">
+        <h2>Menu Items</h2>
+        <p>Manage your waffle menu, prices, categories and availability.</p>
+      </div>
+
+      <div class="card">
+
+        <div class="card-header">
+          <div>
+            <h3 id="menuFormTitle">Add Menu Item</h3>
+            <p>Add a new item to your menu.</p>
+          </div>
+        </div>
+
+        <input type="hidden" id="menuEditId">
+
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>Name *</label>
+            <input id="menuName" placeholder="Example: Chocolate Waffle">
+          </div>
+
+          <div class="form-group">
+            <label>Price *</label>
+            <input id="menuPrice" type="number" min="0" step="0.01" placeholder="149">
+          </div>
+
+          <div class="form-group">
+            <label>Category</label>
+            <input id="menuCategory" placeholder="Example: Waffles">
+          </div>
+
+          <div class="form-group">
+            <label>Display Order</label>
+            <input id="menuOrder" type="number" min="0" value="0">
+          </div>
+
+          <div class="form-group full">
+            <label>Image URL</label>
+            <input id="menuImage" placeholder="https://example.com/waffle.jpg">
+          </div>
+
+          <div class="form-group full">
+            <label>Description</label>
+            <textarea id="menuDescription" placeholder="Enter menu item description"></textarea>
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+
+          <button class="btn btn-primary" id="menuSaveBtn" onclick="saveMenuItem()">
+            Save Menu Item
+          </button>
+
+          <button class="btn btn-secondary" id="menuCancelBtn" onclick="cancelMenuEdit()" style="display:none">
+            Cancel Edit
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="card">
+
+        <div class="card-header">
+          <div>
+            <h3>Menu Items</h3>
+            <p>Manage all menu products.</p>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <input id="menuSearch" placeholder="Search menu..." oninput="renderMenu()">
+          <select id="menuStatusFilter" onchange="renderMenu()">
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Order</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody id="menuTable">
+              <tr>
+                <td colspan="6" class="empty">Loading...</td>
+              </tr>
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- GALLERY -->
+
+    <section class="page" id="page-gallery">
+
+      <div class="page-heading">
+        <h2>Gallery</h2>
+        <p>Manage photos displayed on your website.</p>
+      </div>
+
+      <div class="card">
+
+        <div class="card-header">
+          <div>
+            <h3 id="galleryFormTitle">Add Gallery Image</h3>
+            <p>Add an image using its URL.</p>
+          </div>
+        </div>
+
+        <input type="hidden" id="galleryEditId">
+
+        <div class="form-grid">
+
+          <div class="form-group full">
+            <label>Image URL *</label>
+            <input id="galleryImage" placeholder="https://example.com/image.jpg" oninput="previewGalleryImage()">
+            <img id="galleryPreview" class="preview" alt="Preview">
+          </div>
+
+          <div class="form-group">
+            <label>Title</label>
+            <input id="galleryTitle" placeholder="Example: Chocolate Waffle">
+          </div>
+
+          <div class="form-group">
+            <label>Display Order</label>
+            <input id="galleryOrder" type="number" min="0" value="0">
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+
+          <button class="btn btn-primary" onclick="saveGallery()" id="gallerySaveBtn">
+            Save Gallery Image
+          </button>
+
+          <button class="btn btn-secondary" onclick="cancelGalleryEdit()" id="galleryCancelBtn" style="display:none">
+            Cancel Edit
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="card">
+
+        <div class="card-header">
+          <div>
+            <h3>Gallery Images</h3>
+            <p>Preview and manage your gallery.</p>
+          </div>
+        </div>
+
+        <div class="gallery-grid" id="galleryGrid">
+          <div class="empty">Loading...</div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- REVIEWS -->
+
+    <section class="page" id="page-reviews">
+
+      <div class="page-heading">
+        <h2>Reviews</h2>
+        <p>Manage customer reviews shown on your website.</p>
+      </div>
+
+      <div class="card">
+
+        <div class="card-header">
+          <div>
+            <h3 id="reviewFormTitle">Add Review</h3>
+            <p>Add a customer review.</p>
+          </div>
+        </div>
+
+        <input type="hidden" id="reviewEditId">
+
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>Customer Name *</label>
+            <input id="customerName" placeholder="Example: Rahul">
+          </div>
+
+          <div class="form-group">
+            <label>Rating *</label>
+            <select id="reviewRating">
+              <option value="">Select rating</option>
+              <option value="5">★★★★★ — 5 Stars</option>
+              <option value="4">★★★★☆ — 4 Stars</option>
+              <option value="3">★★★☆☆ — 3 Stars</option>
+              <option value="2">★★☆☆☆ — 2 Stars</option>
+              <option value="1">★☆☆☆☆ — 1 Star</option>
+            </select>
+          </div>
+
+          <div class="form-group full">
+            <label>Review *</label>
+            <textarea id="reviewText" placeholder="Enter customer review"></textarea>
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+
+          <button class="btn btn-primary" onclick="saveReview()" id="reviewSaveBtn">
+            Save Review
+          </button>
+
+          <button class="btn btn-secondary" onclick="cancelReviewEdit()" id="reviewCancelBtn" style="display:none">
+            Cancel Edit
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="card">
+
+        <div class="card-header">
+          <div>
+            <h3>Customer Reviews</h3>
+            <p>Approve, hide, edit or delete reviews.</p>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Review</th>
+                <th>Rating</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody id="reviewsTable">
+              <tr>
+                <td colspan="6" class="empty">Loading...</td>
+              </tr>
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ENQUIRIES -->
+
+    <section class="page" id="page-enquiries">
+
+      <div class="page-heading">
+        <h2>Enquiries</h2>
+        <p>Manage customer enquiries and follow-ups.</p>
+      </div>
+
+      <div class="card">
+
+        <div class="toolbar">
+
+          <input
+            id="enquirySearch"
+            placeholder="Search name, phone, location..."
+            oninput="renderEnquiries()"
+          >
+
+          <select id="enquiryStatusFilter" onchange="renderEnquiries()">
+            <option value="all">All Status</option>
+            <option value="new">New</option>
+            <option value="contacted">Contacted</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+
+        </div>
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Location</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody id="enquiriesTable">
+              <tr>
+                <td colspan="8" class="empty">Loading...</td>
+              </tr>
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</section>
 
 </div>
 
-<!-- MENU ITEMS -->
+<!-- MODAL -->
 
-<div class="card">
+<div class="modal" id="modal">
 
-<h2>Menu Items</h2>
+  <div class="modal-box">
 
-<label for="menuName">Name</label>
+    <div class="modal-header">
 
-<input
-id="menuName"
-type="text"
-placeholder="Example: Chocolate Waffle">
+      <h3 id="modalTitle">Edit</h3>
 
-<label for="menuPrice">Price</label>
+      <button class="close" onclick="closeModal()">×</button>
 
-<input
-id="menuPrice"
-type="number"
-placeholder="Example: 149">
+    </div>
 
-<label for="menuDescription">Description</label>
+    <div id="modalBody"></div>
 
-<textarea
-  id="menuDescription"
-  placeholder="Enter menu item description"></textarea>
-
-<button onclick="saveMenuItem()">
-  Save Menu Item
-</button>
-
-<p id="menuMessage"></p>
-
-<hr>
-
-<pre id="menuItems">Loading...</pre>
+  </div>
 
 </div>
 
-<!-- GALLERY -->
-
-<div class="card">
-
-<h2>Gallery</h2>
-
-<label for="galleryImage">
-  Image URL
-</label>
-
-<input
-id="galleryImage"
-type="text"
-placeholder="https://example.com/image.jpg">
-
-<label for="galleryTitle">
-  Title
-</label>
-
-<input
-id="galleryTitle"
-type="text"
-placeholder="Example: Chocolate Waffle">
-
-<button onclick="saveGallery()">
-  Save Gallery Image
-</button>
-
-<p id="galleryMessage"></p>
-
-<hr>
-
-<pre id="gallery">Loading...</pre>
-
-</div>
-
-<!-- REVIEWS -->
-
-<div class="card">
-
-<h2>Reviews</h2>
-
-<label for="customerName">
-  Customer Name
-</label>
-
-<input
-id="customerName"
-type="text"
-placeholder="Example: Rahul">
-
-<label for="reviewText">
-  Review
-</label>
-
-<textarea
-  id="reviewText"
-  placeholder="Enter customer review"></textarea>
-
-<label for="reviewRating">
-  Rating
-</label>
-
-<select id="reviewRating">
-  <option value="">Select rating</option>
-  <option value="5">5 Stars</option>
-  <option value="4">4 Stars</option>
-  <option value="3">3 Stars</option>
-  <option value="2">2 Stars</option>
-  <option value="1">1 Star</option>
-</select>
-
-<button onclick="saveReview()">
-  Save Review
-</button>
-
-<p id="reviewMessage"></p>
-
-<hr>
-
-<pre id="reviews">Loading...</pre>
-
-</div>
-
-<!-- ENQUIRIES -->
-
-<div class="card">
-
-<h2>Enquiries</h2>
-
-<div style="overflow-x:auto;">
-
-<table id="enquiriesTable">
-
-<thead>
-
-<tr>
-  <th>Name</th>
-  <th>Phone</th>
-  <th>Email</th>
-  <th>Location</th>
-  <th>Message</th>
-  <th>Status</th>
-  <th>Date</th>
-  <th>Actions</th>
-</tr>
-
-</thead>
-
-<tbody id="enquiries">
-
-<tr>
-  <td colspan="8">Loading...</td>
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-</main>
+<div id="toastContainer"></div>
 
 <script>
 
-
-/* SUPABASE */
+/* =========================================================
+   SUPABASE
+========================================================= */
 
 const SUPABASE_URL =
 "https://vxcbpbcqiqwgiapgvoxy.supabase.co";
@@ -364,254 +1395,1746 @@ const db = createClient(
 );
 
 
-/* LOGIN CHECK */
+/* =========================================================
+   GLOBAL DATA
+========================================================= */
+
+let siteContentData = [];
+let menuData = [];
+let galleryData = [];
+let reviewsData = [];
+let enquiriesData = [];
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
 
 async function checkLogin(){
 
   const {
-    data:{user}
+    data:{user},
+    error
   } = await db.auth.getUser();
 
-  if(!user){
+  if(error || !user){
 
-    window.location.href="admin.html";
+    window.location.href = "admin.html";
 
     return;
   }
 
-  document.getElementById("message").textContent =
-    "Logged in as " + user.email;
+  document.getElementById("userEmail").textContent =
+    user.email || "";
 
-  loadData();
+  await loadData();
 }
 
 
-/* LOAD ALL DATA */
+/* =========================================================
+   LOAD DATA
+========================================================= */
 
 async function loadData(){
 
+  await Promise.all([
+    loadSiteContent(),
+    loadMenu(),
+    loadGallery(),
+    loadReviews(),
+    loadEnquiries()
+  ]);
 
-  /* SITE CONTENT */
-
-  const site = await db
-    .from("site_content")
-    .select("*")
-    .order("id",{ascending:true});
-
-  document.getElementById("siteContent").textContent =
-    JSON.stringify(
-      site.data || [],
-      null,
-      2
-    );
+  updateStats();
+  renderRecentEnquiries();
+}
 
 
-  /* MENU */
+/* =========================================================
+   SITE CONTENT
+========================================================= */
 
-  const menu = await db
-    .from("menu_items")
-    .select("*")
-    .order("id",{ascending:true});
+async function loadSiteContent(){
 
-  document.getElementById("menuItems").textContent =
-    JSON.stringify(
-      menu.data || [],
-      null,
-      2
-    );
+  const {data,error} =
+    await db
+      .from("site_content")
+      .select("*")
+      .order("id",{ascending:true});
 
+  if(error){
 
-  /* GALLERY */
+    toast("Site content: " + error.message,"error");
 
-  const gallery = await db
-    .from("gallery")
-    .select("*")
-    .order("id",{ascending:true});
+    siteContentData = [];
 
-  document.getElementById("gallery").textContent =
-    JSON.stringify(
-      gallery.data || [],
-      null,
-      2
-    );
+    return;
+  }
+
+  siteContentData = data || [];
+
+  renderSiteContent();
+}
 
 
-  /* REVIEWS */
-
-  const reviews = await db
-    .from("reviews")
-    .select("*")
-    .order("id",{ascending:true});
-
-  document.getElementById("reviews").textContent =
-    JSON.stringify(
-      reviews.data || [],
-      null,
-      2
-    );
-
-
-  /* ENQUIRIES */
-
-  const enquiries = await db
-    .from("enquiries")
-    .select("*")
-    .order("id",{ascending:false});
-
+function renderSiteContent(){
 
   const tbody =
-    document.getElementById("enquiries");
+    document.getElementById("contentTable");
 
+  if(!siteContentData.length){
 
-  if(enquiries.error){
-
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="8">
-          Error loading enquiries:
-          ${escapeHTML(enquiries.error.message)}
-        </td>
-      </tr>
-    `;
+    tbody.innerHTML =
+      `<tr><td colspan="5" class="empty">No content sections yet.</td></tr>`;
 
     return;
   }
-
-
-  if(
-    !enquiries.data ||
-    enquiries.data.length === 0
-  ){
-
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="8">
-          No enquiries yet.
-        </td>
-      </tr>
-    `;
-
-    return;
-  }
-
 
   tbody.innerHTML =
-    enquiries.data.map(item => {
+    siteContentData.map(item => {
 
-
-      const date =
-        item.created_at
-          ? new Date(
-              item.created_at
-            ).toLocaleString()
-          : "";
-
-
-      const phone =
-        item.phone || "";
-
-
-      const whatsappNumber =
-        phone.replace(/\D/g,"");
-
+      const text =
+        item.content &&
+        typeof item.content === "object"
+          ? item.content.text || ""
+          : String(item.content || "");
 
       return `
+        <tr>
 
+          <td>${escapeHTML(item.id)}</td>
+
+          <td>
+            <strong>${escapeHTML(item.section || "")}</strong>
+          </td>
+
+          <td>
+            ${escapeHTML(text.substring(0,120))}
+            ${text.length > 120 ? "..." : ""}
+          </td>
+
+          <td>
+            ${formatDate(item.updated_at)}
+          </td>
+
+          <td>
+            <div class="actions">
+
+              <button
+                class="btn btn-blue btn-small"
+                onclick="editSiteContent(${item.id})">
+                Edit
+              </button>
+
+              <button
+                class="btn btn-red btn-small"
+                onclick="deleteSiteContent(${item.id})">
+                Delete
+              </button>
+
+            </div>
+          </td>
+
+        </tr>
+      `;
+
+    }).join("");
+}
+
+
+async function saveSiteContent(){
+
+  const section =
+    document.getElementById("contentTitle").value.trim();
+
+  const text =
+    document.getElementById("contentText").value.trim();
+
+  if(!section || !text){
+
+    toast("Please enter section and content.","error");
+
+    return;
+  }
+
+  const {error} =
+    await db
+      .from("site_content")
+      .insert({
+        section,
+        content:{text}
+      });
+
+  if(error){
+
+    toast(error.message,"error");
+
+    return;
+  }
+
+  document.getElementById("contentTitle").value="";
+  document.getElementById("contentText").value="";
+
+  toast("Site content saved.","success");
+
+  await loadSiteContent();
+}
+
+
+function editSiteContent(id){
+
+  const item =
+    siteContentData.find(x => x.id === id);
+
+  if(!item)return;
+
+  const text =
+    item.content &&
+    typeof item.content === "object"
+      ? item.content.text || ""
+      : String(item.content || "");
+
+  document.getElementById("contentTitle").value =
+    item.section || "";
+
+  document.getElementById("contentText").value =
+    text;
+
+  document.getElementById("contentTitle").focus();
+
+  const card =
+    document.getElementById("page-content");
+
+  card.scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+
+  const button =
+    document.querySelector("#page-content .form-actions .btn-primary");
+
+  button.textContent = "Update Content";
+
+  button.onclick = async function(){
+
+    const section =
+      document.getElementById("contentTitle").value.trim();
+
+    const newText =
+      document.getElementById("contentText").value.trim();
+
+    if(!section || !newText){
+
+      toast("Please enter section and content.","error");
+
+      return;
+    }
+
+    const {error} =
+      await db
+        .from("site_content")
+        .update({
+          section,
+          content:{text:newText},
+          updated_at:new Date().toISOString()
+        })
+        .eq("id",id);
+
+    if(error){
+
+      toast(error.message,"error");
+
+      return;
+    }
+
+    document.getElementById("contentTitle").value="";
+    document.getElementById("contentText").value="";
+
+    button.textContent="Save Content";
+
+    button.onclick=saveSiteContent;
+
+    toast("Content updated.","success");
+
+    await loadSiteContent();
+  };
+}
+
+
+async function deleteSiteContent(id){
+
+  if(!confirm("Delete this site content section?"))return;
+
+  const {error} =
+    await db
+      .from("site_content")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    toast(error.message,"error");
+
+    return;
+  }
+
+  toast("Content deleted.","success");
+
+  await loadSiteContent();
+}
+
+
+/* =========================================================
+   MENU
+========================================================= */
+
+async function loadMenu(){
+
+  const {data,error} =
+    await db
+      .from("menu_items")
+      .select("*")
+      .order("display_order",{ascending:true})
+      .order("id",{ascending:true});
+
+  if(error){
+
+    toast("Menu: " + error.message,"error");
+
+    menuData=[];
+
+    return;
+  }
+
+  menuData=data || [];
+
+  renderMenu();
+}
+
+
+function renderMenu(){
+
+  const tbody =
+    document.getElementById("menuTable");
+
+  const search =
+    document.getElementById("menuSearch").value
+      .trim()
+      .toLowerCase();
+
+  const status =
+    document.getElementById("menuStatusFilter").value;
+
+  const filtered =
+    menuData.filter(item => {
+
+      const matchesSearch =
+        !search ||
+        String(item.name || "").toLowerCase().includes(search) ||
+        String(item.category || "").toLowerCase().includes(search) ||
+        String(item.description || "").toLowerCase().includes(search);
+
+      const matchesStatus =
+        status === "all" ||
+        (status === "active" && item.is_active !== false) ||
+        (status === "inactive" && item.is_active === false);
+
+      return matchesSearch && matchesStatus;
+    });
+
+  if(!filtered.length){
+
+    tbody.innerHTML =
+      `<tr><td colspan="6" class="empty">No menu items found.</td></tr>`;
+
+    return;
+  }
+
+  tbody.innerHTML =
+    filtered.map(item => {
+
+      const active =
+        item.is_active !== false;
+
+      return `
         <tr>
 
           <td>
-            ${escapeHTML(item.name || "")}
-          </td>
-
-          <td>
-            ${escapeHTML(item.phone || "")}
-          </td>
-
-          <td>
-            ${escapeHTML(item.email || "")}
-          </td>
-
-          <td>
-            ${escapeHTML(item.location || "")}
-          </td>
-
-          <td>
-            ${escapeHTML(item.message || "")}
-          </td>
-
-          <td>
-            ${escapeHTML(item.status || "new")}
-          </td>
-
-          <td>
-            ${escapeHTML(date)}
-          </td>
-
-          <td>
-
+            <strong>${escapeHTML(item.name || "")}</strong>
             ${
-              whatsappNumber
+              item.image_url
               ?
-              `<a
-                href="https://wa.me/${whatsappNumber}"
-                target="_blank"
-                rel="noopener noreferrer"
-                style="
-                  display:inline-block;
-                  margin:3px;
-                  padding:7px 10px;
-                  background:#25D366;
-                  color:white;
-                  border-radius:7px;
-                  text-decoration:none;
-                  font-weight:bold;
-                "
-              >
-                WhatsApp
-              </a>`
+              `<br><span style="color:#756b64;font-size:11px">Image available</span>`
               :
               ""
             }
+          </td>
 
+          <td>${escapeHTML(item.category || "—")}</td>
 
-            ${
-              phone
-              ?
-              `<a
-                href="tel:${encodeURIComponent(phone)}"
-                style="
-                  display:inline-block;
-                  margin:3px;
-                  padding:7px 10px;
-                  background:#3d2b21;
-                  color:white;
-                  border-radius:7px;
-                  text-decoration:none;
-                  font-weight:bold;
-                "
+          <td><strong>₹${Number(item.price || 0).toFixed(2)}</strong></td>
+
+          <td>${escapeHTML(item.display_order ?? 0)}</td>
+
+          <td>
+
+            <label class="switch">
+
+              <input
+                type="checkbox"
+                ${active ? "checked" : ""}
+                onchange="toggleMenuStatus(${item.id},this.checked)"
               >
-                Call
-              </a>`
-              :
-              ""
-            }
+
+              <span class="slider"></span>
+
+            </label>
+
+          </td>
+
+          <td>
+
+            <div class="actions">
+
+              <button
+                class="btn btn-blue btn-small"
+                onclick="editMenu(${item.id})">
+                Edit
+              </button>
+
+              <button
+                class="btn btn-red btn-small"
+                onclick="deleteMenu(${item.id})">
+                Delete
+              </button>
+
+            </div>
 
           </td>
 
         </tr>
-
       `;
 
     }).join("");
+}
+
+
+async function saveMenuItem(){
+
+  const id =
+    document.getElementById("menuEditId").value;
+
+  const name =
+    document.getElementById("menuName").value.trim();
+
+  const price =
+    document.getElementById("menuPrice").value;
+
+  const description =
+    document.getElementById("menuDescription").value.trim();
+
+  const image_url =
+    document.getElementById("menuImage").value.trim();
+
+  const category =
+    document.getElementById("menuCategory").value.trim();
+
+  const display_order =
+    Number(document.getElementById("menuOrder").value || 0);
+
+  if(!name || price === ""){
+
+    toast("Name and price are required.","error");
+
+    return;
+  }
+
+  const payload = {
+    name,
+    price:Number(price),
+    description,
+    image_url:image_url || null,
+    category:category || null,
+    display_order
+  };
+
+  let result;
+
+  if(id){
+
+    result =
+      await db
+        .from("menu_items")
+        .update(payload)
+        .eq("id",id);
+
+  }else{
+
+    payload.is_active=true;
+
+    result =
+      await db
+        .from("menu_items")
+        .insert(payload);
+
+  }
+
+  if(result.error){
+
+    toast(result.error.message,"error");
+
+    return;
+  }
+
+  toast(
+    id
+      ? "Menu item updated."
+      : "Menu item added.",
+    "success"
+  );
+
+  cancelMenuEdit();
+
+  await loadMenu();
+
+  updateStats();
+}
+
+
+function editMenu(id){
+
+  const item =
+    menuData.find(x => x.id === id);
+
+  if(!item)return;
+
+  document.getElementById("menuEditId").value=id;
+  document.getElementById("menuName").value=item.name || "";
+  document.getElementById("menuPrice").value=item.price ?? "";
+  document.getElementById("menuDescription").value=item.description || "";
+  document.getElementById("menuImage").value=item.image_url || "";
+  document.getElementById("menuCategory").value=item.category || "";
+  document.getElementById("menuOrder").value=item.display_order ?? 0;
+
+  document.getElementById("menuFormTitle").textContent =
+    "Edit Menu Item";
+
+  document.getElementById("menuSaveBtn").textContent =
+    "Update Menu Item";
+
+  document.getElementById("menuCancelBtn").style.display =
+    "inline-flex";
+
+  document.getElementById("page-menu").scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+}
+
+
+function cancelMenuEdit(){
+
+  document.getElementById("menuEditId").value="";
+  document.getElementById("menuName").value="";
+  document.getElementById("menuPrice").value="";
+  document.getElementById("menuDescription").value="";
+  document.getElementById("menuImage").value="";
+  document.getElementById("menuCategory").value="";
+  document.getElementById("menuOrder").value="0";
+
+  document.getElementById("menuFormTitle").textContent =
+    "Add Menu Item";
+
+  document.getElementById("menuSaveBtn").textContent =
+    "Save Menu Item";
+
+  document.getElementById("menuCancelBtn").style.display =
+    "none";
+}
+
+
+async function toggleMenuStatus(id,isActive){
+
+  const {error} =
+    await db
+      .from("menu_items")
+      .update({
+        is_active:isActive
+      })
+      .eq("id",id);
+
+  if(error){
+
+    toast(error.message,"error");
+
+    await loadMenu();
+
+    return;
+  }
+
+  toast(
+    isActive
+      ? "Menu item activated."
+      : "Menu item hidden.",
+    "success"
+  );
+
+  await loadMenu();
+}
+
+
+async function deleteMenu(id){
+
+  if(!confirm("Delete this menu item permanently?"))return;
+
+  const {error} =
+    await db
+      .from("menu_items")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    toast(error.message,"error");
+
+    return;
+  }
+
+  toast("Menu item deleted.","success");
+
+  await loadMenu();
+
+  updateStats();
+}
+
+
+/* =========================================================
+   GALLERY
+========================================================= */
+
+async function loadGallery(){
+
+  const {data,error} =
+    await db
+      .from("gallery")
+      .select("*")
+      .order("display_order",{ascending:true})
+      .order("id",{ascending:true});
+
+  if(error){
+
+    toast("Gallery: " + error.message,"error");
+
+    galleryData=[];
+
+    return;
+  }
+
+  galleryData=data || [];
+
+  renderGallery();
+}
+
+
+function renderGallery(){
+
+  const container =
+    document.getElementById("galleryGrid");
+
+  if(!galleryData.length){
+
+    container.innerHTML =
+      `<div class="empty">No gallery images yet.</div>`;
+
+    return;
+  }
+
+  container.innerHTML =
+    galleryData.map(item => {
+
+      const active =
+        item.is_active !== false;
+
+      return `
+        <div class="gallery-card">
+
+          <img
+            src="${escapeAttribute(item.image_url || "")}"
+            class="gallery-image"
+            alt="${escapeAttribute(item.title || "Gallery image")}"
+            onerror="this.style.opacity='.35'"
+          >
+
+          <div class="gallery-info">
+
+            <h4>
+              ${escapeHTML(item.title || "Untitled")}
+            </h4>
+
+            <p>
+              Order: ${escapeHTML(item.display_order ?? 0)}
+            </p>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+
+              <label class="switch">
+
+                <input
+                  type="checkbox"
+                  ${active ? "checked" : ""}
+                  onchange="toggleGalleryStatus(${item.id},this.checked)"
+                >
+
+                <span class="slider"></span>
+
+              </label>
+
+              <div class="actions">
+
+                <button
+                  class="btn btn-blue btn-small"
+                  onclick="editGallery(${item.id})">
+                  Edit
+                </button>
+
+                <button
+                  class="btn btn-red btn-small"
+                  onclick="deleteGallery(${item.id})">
+                  Delete
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      `;
+
+    }).join("");
+}
+
+
+function previewGalleryImage(){
+
+  const url =
+    document.getElementById("galleryImage").value.trim();
+
+  const preview =
+    document.getElementById("galleryPreview");
+
+  if(!url){
+
+    preview.style.display="none";
+
+    return;
+  }
+
+  preview.src=url;
+  preview.style.display="block";
+}
+
+
+async function saveGallery(){
+
+  const id =
+    document.getElementById("galleryEditId").value;
+
+  const image_url =
+    document.getElementById("galleryImage").value.trim();
+
+  const title =
+    document.getElementById("galleryTitle").value.trim();
+
+  const display_order =
+    Number(document.getElementById("galleryOrder").value || 0);
+
+  if(!image_url){
+
+    toast("Image URL is required.","error");
+
+    return;
+  }
+
+  const payload = {
+    image_url,
+    title,
+    display_order
+  };
+
+  let result;
+
+  if(id){
+
+    result =
+      await db
+        .from("gallery")
+        .update(payload)
+        .eq("id",id);
+
+  }else{
+
+    payload.is_active=true;
+
+    result =
+      await db
+        .from("gallery")
+        .insert(payload);
+
+  }
+
+  if(result.error){
+
+    toast(result.error.message,"error");
+
+    return;
+  }
+
+  toast(
+    id
+      ? "Gallery image updated."
+      : "Gallery image added.",
+    "success"
+  );
+
+  cancelGalleryEdit();
+
+  await loadGallery();
+
+  updateStats();
+}
+
+
+function editGallery(id){
+
+  const item =
+    galleryData.find(x => x.id === id);
+
+  if(!item)return;
+
+  document.getElementById("galleryEditId").value=id;
+  document.getElementById("galleryImage").value=item.image_url || "";
+  document.getElementById("galleryTitle").value=item.title || "";
+  document.getElementById("galleryOrder").value=item.display_order ?? 0;
+
+  document.getElementById("galleryFormTitle").textContent =
+    "Edit Gallery Image";
+
+  document.getElementById("gallerySaveBtn").textContent =
+    "Update Gallery Image";
+
+  document.getElementById("galleryCancelBtn").style.display =
+    "inline-flex";
+
+  previewGalleryImage();
+
+  document.getElementById("page-gallery").scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+}
+
+
+function cancelGalleryEdit(){
+
+  document.getElementById("galleryEditId").value="";
+  document.getElementById("galleryImage").value="";
+  document.getElementById("galleryTitle").value="";
+  document.getElementById("galleryOrder").value="0";
+
+  document.getElementById("galleryPreview").style.display="none";
+
+  document.getElementById("galleryFormTitle").textContent =
+    "Add Gallery Image";
+
+  document.getElementById("gallerySaveBtn").textContent =
+    "Save Gallery Image";
+
+  document.getElementById("galleryCancelBtn").style.display =
+    "none";
+}
+
+
+async function toggleGalleryStatus(id,isActive){
+
+  const {error} =
+    await db
+      .from("gallery")
+      .update({
+        is_active:isActive
+      })
+      .eq("id",id);
+
+  if(error){
+
+    toast(error.message,"error");
+
+    await loadGallery();
+
+    return;
+  }
+
+  toast(
+    isActive
+      ? "Gallery image activated."
+      : "Gallery image hidden.",
+    "success"
+  );
+
+  await loadGallery();
+}
+
+
+async function deleteGallery(id){
+
+  if(!confirm("Delete this gallery image permanently?"))return;
+
+  const {error} =
+    await db
+      .from("gallery")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    toast(error.message,"error");
+
+    return;
+  }
+
+  toast("Gallery image deleted.","success");
+
+  await loadGallery();
+
+  updateStats();
+}
+
+
+/* =========================================================
+   REVIEWS
+========================================================= */
+
+async function loadReviews(){
+
+  const {data,error} =
+    await db
+      .from("reviews")
+      .select("*")
+      .order("id",{ascending:false});
+
+  if(error){
+
+    toast("Reviews: " + error.message,"error");
+
+    reviewsData=[];
+
+    return;
+  }
+
+  reviewsData=data || [];
+
+  renderReviews();
+}
+
+
+function renderReviews(){
+
+  const tbody =
+    document.getElementById("reviewsTable");
+
+  if(!reviewsData.length){
+
+    tbody.innerHTML =
+      `<tr><td colspan="6" class="empty">No reviews yet.</td></tr>`;
+
+    return;
+  }
+
+  tbody.innerHTML =
+    reviewsData.map(item => {
+
+      const active =
+        item.is_active !== false;
+
+      const rating =
+        Math.max(0,Math.min(5,Number(item.rating || 0)));
+
+      const stars =
+        "★".repeat(rating) +
+        "☆".repeat(5-rating);
+
+      return `
+        <tr>
+
+          <td>
+            <strong>
+              ${escapeHTML(item.customer_name || "")}
+            </strong>
+          </td>
+
+          <td>
+            ${escapeHTML(
+              String(item.review_text || "").substring(0,130)
+            )}
+            ${
+              String(item.review_text || "").length > 130
+                ? "..."
+                : ""
+            }
+          </td>
+
+          <td>
+            <span class="stars">${stars}</span>
+          </td>
+
+          <td>
+
+            <label class="switch">
+
+              <input
+                type="checkbox"
+                ${active ? "checked" : ""}
+                onchange="toggleReviewStatus(${item.id},this.checked)"
+              >
+
+              <span class="slider"></span>
+
+            </label>
+
+          </td>
+
+          <td>${formatDate(item.created_at)}</td>
+
+          <td>
+
+            <div class="actions">
+
+              <button
+                class="btn btn-blue btn-small"
+                onclick="editReview(${item.id})">
+                Edit
+              </button>
+
+              <button
+                class="btn btn-red btn-small"
+                onclick="deleteReview(${item.id})">
+                Delete
+              </button>
+
+            </div>
+
+          </td>
+
+        </tr>
+      `;
+
+    }).join("");
+}
+
+
+async function saveReview(){
+
+  const id =
+    document.getElementById("reviewEditId").value;
+
+  const customer_name =
+    document.getElementById("customerName").value.trim();
+
+  const review_text =
+    document.getElementById("reviewText").value.trim();
+
+  const rating =
+    document.getElementById("reviewRating").value;
+
+  if(!customer_name || !review_text || !rating){
+
+    toast("Customer name, review and rating are required.","error");
+
+    return;
+  }
+
+  const payload = {
+    customer_name,
+    review_text,
+    rating:Number(rating)
+  };
+
+  let result;
+
+  if(id){
+
+    result =
+      await db
+        .from("reviews")
+        .update(payload)
+        .eq("id",id);
+
+  }else{
+
+    payload.is_active=true;
+
+    result =
+      await db
+        .from("reviews")
+        .insert(payload);
+
+  }
+
+  if(result.error){
+
+    toast(result.error.message,"error");
+
+    return;
+  }
+
+  toast(
+    id
+      ? "Review updated."
+      : "Review added.",
+    "success"
+  );
+
+  cancelReviewEdit();
+
+  await loadReviews();
+
+  updateStats();
+}
+
+
+function editReview(id){
+
+  const item =
+    reviewsData.find(x => x.id === id);
+
+  if(!item)return;
+
+  document.getElementById("reviewEditId").value=id;
+  document.getElementById("customerName").value=item.customer_name || "";
+  document.getElementById("reviewText").value=item.review_text || "";
+  document.getElementById("reviewRating").value=item.rating || "";
+
+  document.getElementById("reviewFormTitle").textContent =
+    "Edit Review";
+
+  document.getElementById("reviewSaveBtn").textContent =
+    "Update Review";
+
+  document.getElementById("reviewCancelBtn").style.display =
+    "inline-flex";
+
+  document.getElementById("page-reviews").scrollIntoView({
+    behavior:"smooth",
+    block:"start"
+  });
+}
+
+
+function cancelReviewEdit(){
+
+  document.getElementById("reviewEditId").value="";
+  document.getElementById("customerName").value="";
+  document.getElementById("reviewText").value="";
+  document.getElementById("reviewRating").value="";
+
+  document.getElementById("reviewFormTitle").textContent =
+    "Add Review";
+
+  document.getElementById("reviewSaveBtn").textContent =
+    "Save Review";
+
+  document.getElementById("reviewCancelBtn").style.display =
+    "none";
+}
+
+
+async function toggleReviewStatus(id,isActive){
+
+  const {error} =
+    await db
+      .from("reviews")
+      .update({
+        is_active:isActive
+      })
+      .eq("id",id);
+
+  if(error){
+
+    toast(error.message,"error");
+
+    await loadReviews();
+
+    return;
+  }
+
+  toast(
+    isActive
+      ? "Review activated."
+      : "Review hidden.",
+    "success"
+  );
+
+  await loadReviews();
+}
+
+
+async function deleteReview(id){
+
+  if(!confirm("Delete this review permanently?"))return;
+
+  const {error} =
+    await db
+      .from("reviews")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    toast(error.message,"error");
+
+    return;
+  }
+
+  toast("Review deleted.","success");
+
+  await loadReviews();
+
+  updateStats();
+}
+
+
+/* =========================================================
+   ENQUIRIES
+========================================================= */
+
+async function loadEnquiries(){
+
+  const {data,error} =
+    await db
+      .from("enquiries")
+      .select("*")
+      .order("id",{ascending:false});
+
+  if(error){
+
+    toast("Enquiries: " + error.message,"error");
+
+    enquiriesData=[];
+
+    return;
+  }
+
+  enquiriesData=data || [];
+
+  renderEnquiries();
+}
+
+
+function renderEnquiries(){
+
+  const tbody =
+    document.getElementById("enquiriesTable");
+
+  const search =
+    document.getElementById("enquirySearch").value
+      .trim()
+      .toLowerCase();
+
+  const statusFilter =
+    document.getElementById("enquiryStatusFilter").value;
+
+  const filtered =
+    enquiriesData.filter(item => {
+
+      const haystack =
+        [
+          item.name,
+          item.phone,
+          item.email,
+          item.location,
+          item.message
+        ]
+        .map(x => String(x || "").toLowerCase())
+        .join(" ");
+
+      const matchesSearch =
+        !search || haystack.includes(search);
+
+      const status =
+        String(item.status || "new").toLowerCase();
+
+      const matchesStatus =
+        statusFilter === "all" ||
+        status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+
+  if(!filtered.length){
+
+    tbody.innerHTML =
+      `<tr><td colspan="8" class="empty">No enquiries found.</td></tr>`;
+
+    return;
+  }
+
+  tbody.innerHTML =
+    filtered.map(item => {
+
+      const phone =
+        String(item.phone || "");
+
+      const whatsappNumber =
+        phone.replace(/\D/g,"");
+
+      const status =
+        String(item.status || "new").toLowerCase();
+
+      return `
+        <tr>
+
+          <td>
+            <strong>${escapeHTML(item.name || "")}</strong>
+          </td>
+
+          <td>${escapeHTML(phone)}</td>
+
+          <td>${escapeHTML(item.email || "—")}</td>
+
+          <td>${escapeHTML(item.location || "—")}</td>
+
+          <td>
+            ${escapeHTML(
+              String(item.message || "").substring(0,80)
+            )}
+            ${
+              String(item.message || "").length > 80
+                ? "..."
+                : ""
+            }
+          </td>
+
+          <td>
+
+            <select
+              style="min-width:125px;padding:7px"
+              onchange="updateEnquiryStatus(${item.id},this.value)"
+            >
+
+              <option value="new" ${status==="new" ? "selected":""}>
+                New
+              </option>
+
+              <option value="contacted" ${status==="contacted" ? "selected":""}>
+                Contacted
+              </option>
+
+              <option value="in_progress" ${status==="in_progress" ? "selected":""}>
+                In Progress
+              </option>
+
+              <option value="completed" ${status==="completed" ? "selected":""}>
+                Completed
+              </option>
+
+            </select>
+
+          </td>
+
+          <td>${formatDate(item.created_at)}</td>
+
+          <td>
+
+            <div class="actions">
+
+              <button
+                class="btn btn-blue btn-small"
+                onclick="viewEnquiry(${item.id})">
+                View
+              </button>
+
+              ${
+                whatsappNumber
+                ?
+                `<a
+                  class="btn btn-green btn-small"
+                  href="https://wa.me/${whatsappNumber}"
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  WhatsApp
+                </a>`
+                :
+                ""
+              }
+
+              ${
+                phone
+                ?
+                `<a
+                  class="btn btn-primary btn-small"
+                  href="tel:${escapeAttribute(phone)}">
+                  Call
+                </a>`
+                :
+                ""
+              }
+
+              <button
+                class="btn btn-red btn-small"
+                onclick="deleteEnquiry(${item.id})">
+                Delete
+              </button>
+
+            </div>
+
+          </td>
+
+        </tr>
+      `;
+
+    }).join("");
+}
+
+
+async function updateEnquiryStatus(id,status){
+
+  const {error} =
+    await db
+      .from("enquiries")
+      .update({
+        status
+      })
+      .eq("id",id);
+
+  if(error){
+
+    toast(error.message,"error");
+
+    await loadEnquiries();
+
+    return;
+  }
+
+  toast("Enquiry status updated.","success");
+
+  await loadEnquiries();
+
+  updateStats();
+  renderRecentEnquiries();
+}
+
+
+function viewEnquiry(id){
+
+  const item =
+    enquiriesData.find(x => x.id === id);
+
+  if(!item)return;
+
+  document.getElementById("modalTitle").textContent =
+    "Enquiry Details";
+
+  document.getElementById("modalBody").innerHTML = `
+
+    <div class="form-group">
+      <label>Name</label>
+      <input readonly value="${escapeAttribute(item.name || "")}">
+    </div>
+
+    <div class="form-group">
+      <label>Phone</label>
+      <input readonly value="${escapeAttribute(item.phone || "")}">
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input readonly value="${escapeAttribute(item.email || "")}">
+    </div>
+
+    <div class="form-group">
+      <label>Location</label>
+      <input readonly value="${escapeAttribute(item.location || "")}">
+    </div>
+
+    <div class="form-group">
+      <label>Message</label>
+      <textarea readonly>${escapeHTML(item.message || "")}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Status</label>
+      <select onchange="updateEnquiryStatus(${item.id},this.value);closeModal();">
+
+        <option value="new" ${item.status==="new" ? "selected":""}>
+          New
+        </option>
+
+        <option value="contacted" ${item.status==="contacted" ? "selected":""}>
+          Contacted
+        </option>
+
+        <option value="in_progress" ${item.status==="in_progress" ? "selected":""}>
+          In Progress
+        </option>
+
+        <option value="completed" ${item.status==="completed" ? "selected":""}>
+          Completed
+        </option>
+
+      </select>
+    </div>
+
+    <div class="form-actions">
+
+      ${
+        item.phone
+        ?
+        `<a class="btn btn-primary" href="tel:${escapeAttribute(item.phone)}">
+          📞 Call
+        </a>`
+        :
+        ""
+      }
+
+      ${
+        item.phone
+        ?
+        `<a class="btn btn-green" target="_blank" rel="noopener noreferrer"
+          href="https://wa.me/${item.phone.replace(/\D/g,"")}">
+          WhatsApp
+        </a>`
+        :
+        ""
+      }
+
+      ${
+        item.email
+        ?
+        `<a class="btn btn-secondary"
+          href="mailto:${escapeAttribute(item.email)}">
+          ✉ Email
+        </a>`
+        :
+        ""
+      }
+
+    </div>
+
+  `;
+
+  openModal();
+}
+
+
+async function deleteEnquiry(id){
+
+  if(!confirm("Delete this enquiry permanently?"))return;
+
+  const {error} =
+    await db
+      .from("enquiries")
+      .delete()
+      .eq("id",id);
+
+  if(error){
+
+    toast(error.message,"error");
+
+    return;
+  }
+
+  toast("Enquiry deleted.","success");
+
+  await loadEnquiries();
+
+  updateStats();
+  renderRecentEnquiries();
+}
+
+
+function renderRecentEnquiries(){
+
+  const tbody =
+    document.getElementById("recentEnquiries");
+
+  const recent =
+    enquiriesData.slice(0,5);
+
+  if(!recent.length){
+
+    tbody.innerHTML =
+      `<tr><td colspan="6" class="empty">No enquiries yet.</td></tr>`;
+
+    return;
+  }
+
+  tbody.innerHTML =
+    recent.map(item => {
+
+      const status =
+        String(item.status || "new").toLowerCase();
+
+      return `
+        <tr>
+
+          <td>${escapeHTML(item.name || "")}</td>
+
+          <td>${escapeHTML(item.phone || "—")}</td>
+
+          <td>${escapeHTML(item.location || "—")}</td>
+
+          <td>
+            ${escapeHTML(
+              String(item.message || "").substring(0,50)
+            )}
+          </td>
+
+          <td>
+            <span class="badge ${statusBadge(status)}">
+              ${formatStatus(status)}
+            </span>
+          </td>
+
+          <td>${formatDate(item.created_at)}</td>
+
+        </tr>
+      `;
+
+    }).join("");
+}
+
+
+/* =========================================================
+   DASHBOARD STATS
+========================================================= */
+
+function updateStats(){
+
+  document.getElementById("statMenu").textContent =
+    menuData.length;
+
+  document.getElementById("statGallery").textContent =
+    galleryData.length;
+
+  document.getElementById("statReviews").textContent =
+    reviewsData.length;
+
+  const newCount =
+    enquiriesData.filter(
+      x => String(x.status || "new").toLowerCase() === "new"
+    ).length;
+
+  document.getElementById("statEnquiries").textContent =
+    newCount;
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+document.querySelectorAll(".nav-btn").forEach(button => {
+
+  button.addEventListener("click",() => {
+
+    showPage(button.dataset.page);
+
+  });
+
+});
+
+
+function showPage(page){
+
+  document.querySelectorAll(".page").forEach(p => {
+    p.classList.remove("active");
+  });
+
+  const target =
+    document.getElementById("page-" + page);
+
+  if(target){
+    target.classList.add("active");
+  }
+
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+
+    btn.classList.toggle(
+      "active",
+      btn.dataset.page === page
+    );
+
+  });
+
+  const titles = {
+    dashboard:"Dashboard",
+    content:"Site Content",
+    menu:"Menu Items",
+    gallery:"Gallery",
+    reviews:"Reviews",
+    enquiries:"Enquiries"
+  };
+
+  document.getElementById("topbarTitle").textContent =
+    titles[page] || "Dashboard";
+
+  document.getElementById("sidebar").classList.remove("open");
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
+
+function toggleSidebar(){
+
+  document
+    .getElementById("sidebar")
+    .classList.toggle("open");
 
 }
 
 
-/* SAFE TEXT */
+/* =========================================================
+   MODAL
+========================================================= */
+
+function openModal(){
+
+  document
+    .getElementById("modal")
+    .classList.add("show");
+
+}
+
+
+function closeModal(){
+
+  document
+    .getElementById("modal")
+    .classList.remove("show");
+
+}
+
+
+document.getElementById("modal").addEventListener("click",function(e){
+
+  if(e.target === this){
+    closeModal();
+  }
+
+});
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
 
 function escapeHTML(value){
 
-  return String(value)
+  return String(value ?? "")
     .replace(/&/g,"&amp;")
     .replace(/</g,"&lt;")
     .replace(/>/g,"&gt;")
@@ -621,388 +3144,78 @@ function escapeHTML(value){
 }
 
 
-/* SAVE SITE CONTENT */
+function escapeAttribute(value){
 
-async function saveSiteContent(){
-
-  const section =
-    document
-      .getElementById("contentTitle")
-      .value
-      .trim();
-
-
-  const text =
-    document
-      .getElementById("contentText")
-      .value
-      .trim();
-
-
-  const message =
-    document.getElementById(
-      "contentMessage"
-    );
-
-
-  if(!section || !text){
-
-    message.className="error";
-
-    message.textContent =
-      "Please enter both section and content.";
-
-    return;
-  }
-
-
-  message.className="";
-  message.textContent="Saving...";
-
-
-  const {error} =
-    await db
-      .from("site_content")
-      .insert({
-
-        section:section,
-
-        content:{
-          text:text
-        }
-
-      });
-
-
-  if(error){
-
-    message.className="error";
-
-    message.textContent =
-      "Error: " + error.message;
-
-    return;
-  }
-
-
-  message.className="success";
-
-  message.textContent =
-    "Site content saved successfully!";
-
-
-  document.getElementById(
-    "contentTitle"
-  ).value="";
-
-
-  document.getElementById(
-    "contentText"
-  ).value="";
-
-
-  loadData();
-
+  return escapeHTML(value);
 }
 
 
-/* SAVE MENU ITEM */
+function formatDate(value){
 
-async function saveMenuItem(){
+  if(!value)return "—";
 
-  const name =
-    document
-      .getElementById("menuName")
-      .value
-      .trim();
+  const date =
+    new Date(value);
 
+  if(Number.isNaN(date.getTime()))return "—";
 
-  const price =
-    document.getElementById(
-      "menuPrice"
-    ).value;
-
-
-  const description =
-    document
-      .getElementById("menuDescription")
-      .value
-      .trim();
-
-
-  const message =
-    document.getElementById(
-      "menuMessage"
-    );
-
-
-  if(!name || !price){
-
-    message.className="error";
-
-    message.textContent =
-      "Please enter name and price.";
-
-    return;
-  }
-
-
-  message.className="";
-  message.textContent="Saving...";
-
-
-  const {error} =
-    await db
-      .from("menu_items")
-      .insert({
-
-        name:name,
-
-        price:Number(price),
-
-        description:description
-
-      });
-
-
-  if(error){
-
-    message.className="error";
-
-    message.textContent =
-      "Error: " + error.message;
-
-    return;
-  }
-
-
-  message.className="success";
-
-  message.textContent =
-    "Menu item saved successfully!";
-
-
-  document.getElementById(
-    "menuName"
-  ).value="";
-
-
-  document.getElementById(
-    "menuPrice"
-  ).value="";
-
-
-  document.getElementById(
-    "menuDescription"
-  ).value="";
-
-
-  loadData();
-
+  return date.toLocaleString();
 }
 
 
-/* SAVE GALLERY */
+function formatStatus(status){
 
-async function saveGallery(){
+  const map = {
+    new:"New",
+    contacted:"Contacted",
+    in_progress:"In Progress",
+    completed:"Completed"
+  };
 
-  const imageUrl =
-    document
-      .getElementById("galleryImage")
-      .value
-      .trim();
-
-
-  const title =
-    document
-      .getElementById("galleryTitle")
-      .value
-      .trim();
-
-
-  const message =
-    document.getElementById(
-      "galleryMessage"
-    );
-
-
-  if(!imageUrl){
-
-    message.className="error";
-
-    message.textContent =
-      "Please enter an image URL.";
-
-    return;
-  }
-
-
-  message.className="";
-  message.textContent="Saving...";
-
-
-  const {error} =
-    await db
-      .from("gallery")
-      .insert({
-
-        title:title,
-
-        image_url:imageUrl,
-
-        display_order:0,
-
-        is_active:true
-
-      });
-
-
-  if(error){
-
-    message.className="error";
-
-    message.textContent =
-      "Error: " + error.message;
-
-    return;
-  }
-
-
-  message.className="success";
-
-  message.textContent =
-    "Gallery image saved successfully!";
-
-
-  document.getElementById(
-    "galleryImage"
-  ).value="";
-
-
-  document.getElementById(
-    "galleryTitle"
-  ).value="";
-
-
-  loadData();
-
+  return map[status] || status;
 }
 
 
-/* SAVE REVIEW */
+function statusBadge(status){
 
-async function saveReview(){
+  if(status === "contacted")return "badge-contacted";
+  if(status === "completed")return "badge-completed";
+  if(status === "in_progress")return "badge-contacted";
 
-  const customerName =
-    document
-      .getElementById("customerName")
-      .value
-      .trim();
-
-
-  const reviewText =
-    document
-      .getElementById("reviewText")
-      .value
-      .trim();
-
-
-  const rating =
-    document.getElementById(
-      "reviewRating"
-    ).value;
-
-
-  const message =
-    document.getElementById(
-      "reviewMessage"
-    );
-
-
-  if(
-    !customerName ||
-    !reviewText ||
-    !rating
-  ){
-
-    message.className="error";
-
-    message.textContent =
-      "Please enter customer name, review and rating.";
-
-    return;
-  }
-
-
-  message.className="";
-  message.textContent="Saving...";
-
-
-  const {error} =
-    await db
-      .from("reviews")
-      .insert({
-
-        customer_name:customerName,
-
-        review_text:reviewText,
-
-        rating:Number(rating),
-
-        is_active:true
-
-      });
-
-
-  if(error){
-
-    message.className="error";
-
-    message.textContent =
-      "Error: " + error.message;
-
-    return;
-  }
-
-
-  message.className="success";
-
-  message.textContent =
-    "Review saved successfully!";
-
-
-  document.getElementById(
-    "customerName"
-  ).value="";
-
-
-  document.getElementById(
-    "reviewText"
-  ).value="";
-
-
-  document.getElementById(
-    "reviewRating"
-  ).value="";
-
-
-  loadData();
-
+  return "badge-new";
 }
 
 
-/* LOGOUT */
+function toast(message,type="success"){
 
-async function logout(){
+  const container =
+    document.getElementById("toastContainer");
 
-  await db.auth.signOut();
+  const item =
+    document.createElement("div");
 
-  window.location.href="admin.html";
+  item.className =
+    "toast " + type;
 
+  item.textContent =
+    message;
+
+  container.appendChild(item);
+
+  setTimeout(() => {
+
+    item.style.opacity="0";
+    item.style.transform="translateX(30px)";
+
+    setTimeout(() => item.remove(),250);
+
+  },3500);
 }
 
 
-/* START */
+/* =========================================================
+   START
+========================================================= */
 
 checkLogin();
 
